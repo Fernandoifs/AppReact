@@ -1,0 +1,60 @@
+/* Estilos globais para o #root */
+#root {
+  /* max-width: 1280px; Limita a largura máxima do conteúdo */
+  margin: 0 auto; /* Centraliza o conteúdo na tela */
+  /* padding: 2rem; Adiciona um espaçamento interno */
+  text-align: center; /* Centraliza o texto */
+  width: 100%; /* Garante que ocupe 100% da largura disponível */
+  box-sizing: border-box; /* Inclui padding e borda no cálculo da largura */
+}
+
+/* Estilos para a classe .logo */
+.logo {
+  height: 6em; /* Define a altura do logo */
+  padding: 1.5em; /* Adiciona espaçamento interno */
+  will-change: filter; /* Otimiza animações de filtro */
+  transition: filter 300ms ease-in-out; /* Adiciona transição suave ao filtro */
+}
+
+/* Efeito de hover no logo */
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa); /* Adiciona sombra ao passar o mouse */
+}
+
+/* Efeito de hover específico para logos com a classe .react */
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa); /* Sombra com cor diferente para o logo React */
+}
+
+/* Animação de rotação para o logo */
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg); /* Começa com rotação 0 */
+  }
+  to {
+    transform: rotate(360deg); /* Termina com rotação completa */
+  }
+}
+
+/* Aplica a animação apenas se o usuário não preferir reduzir movimento */
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear; /* Animação contínua e suave */
+  }
+}
+
+/* Estilos para cards */
+.card {
+  padding: 2em; /* Espaçamento interno */
+  background-color: #f9f9f9; /* Cor de fundo suave */
+  border-radius: 8px; /* Bordas arredondadas */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  margin: 1rem 0; /* Espaçamento externo */
+}
+
+/* Estilos para textos de leitura */
+.read-the-docs {
+  color: #888; /* Cor cinza para textos secundários */
+  font-size: 0.9em; /* Tamanho de fonte menor */
+  margin-top: 2rem; /* Espaçamento superior */
+}
