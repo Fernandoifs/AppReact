@@ -23,6 +23,13 @@ import SearchBar from '../components/members/SearchBar';
 import MemberCard from '../components/members/MemberCard';
 import MemberForm from '../components/members/MemberForm';
 import { useMembers } from '../contexts/MembersContext';
+// Add this import at the top with other imports
+import BottomNavigation from '../components/shared/BottomNavigation';
+
+// Remove these unnecessary imports as they're now handled in the BottomNavigation component
+// import { HStack } from '@chakra-ui/react';
+// import { FaHome, FaCalendarAlt, FaPray, FaHandHoldingHeart } from 'react-icons/fa';
+// import { Link as RouterLink } from 'react-router-dom';
 
 const Members = () => {
   const { members, addMember, updateMember, deleteMember } = useMembers();
@@ -202,6 +209,8 @@ const Members = () => {
         onSubmit={handleSubmit}
         initialData={editingMember}
       />
+      <BottomNavigation />
+
     </Box>
   );
 };
