@@ -7,7 +7,7 @@ const MainLayout = ({ children }) => {
     { name: 'Home', icon: FaHome, path: '/' },
     { name: 'Membros', icon: FaUsers, path: '/members' },
     { name: 'Programações', icon: FaCalendarAlt, path: '/events' },
-    { name: 'Services', icon: FaPray, path: '/services' },
+    { name: 'Cultos', icon: FaPray, path: '/services' },
     { name: 'Finanças', icon: FaMoneyBillWave, path: '/finance' }
   ]
 
