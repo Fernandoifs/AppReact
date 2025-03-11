@@ -4,70 +4,50 @@ import { mode } from '@chakra-ui/theme-tools';
 const theme = extendTheme({
   colors: {
     brand: {
-      50: '#E6F2FF',
-      100: '#B3D9FF',
-      200: '#80BFFF',
-      300: '#4DA6FF',
-      400: '#1A8CFF',
-      500: '#0073E6',
-      600: '#0059B3',
-      700: '#004080',
-      800: '#00264D',
-      900: '#000D1A',
+      50: '#E8F1FF',
+      100: '#C4D9FF',
+      200: '#85B2FF',
+      300: '#4785F5',
+      400: '#1877F2', // Facebook primary blue
+      500: '#1464D9',
+      600: '#0E51BF',
+      700: '#0A3D99',
+      800: '#062C73',
+      900: '#041B4D',
     },
-    accent: {
-      50: '#F0FFF4',
-      100: '#C6F6D5',
-      200: '#9BE6B4',
-      300: '#68D391',
-      400: '#48BB78',
-      500: '#38A169',
-      600: '#2F855A',
-      700: '#276749',
-      800: '#1C4532',
-      900: '#133526',
-    },
-    highlight: {
-      50: '#FFFFF0',
-      100: '#FEFCBF',
-      200: '#FAF089',
-      300: '#F6E05E',
-      400: '#ECC94B',
-      500: '#D69E2E',
-      600: '#B7791F',
-      700: '#975A16',
-      800: '#744210',
-      900: '#5F370E',
-    },
+    facebook: {
+      bg: '#F0F2F5',
+      text: '#050505',
+      secondaryText: '#65676B',
+      hover: '#E4E6E9',
+      active: '#BCC0C4',
+    }
   },
   fonts: {
-    heading: '"Playfair Display", serif',
-    body: '"Inter", sans-serif',
+    heading: '"-apple-system", "system-ui", BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    body: '"-apple-system", "system-ui", BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
   },
   components: {
     Button: {
       baseStyle: {
-        fontWeight: 'semibold',
-        borderRadius: 'md',
+        fontWeight: '600',
+        borderRadius: '6px',
         transition: 'all 0.2s',
       },
       variants: {
         solid: (props) => ({
-          bg: mode('brand.500', 'brand.200')(props),
-          color: mode('white', 'gray.800')(props),
+          bg: mode('brand.400', 'brand.300')(props),
+          color: 'white',
           _hover: {
-            bg: mode('brand.600', 'brand.300')(props),
-            transform: 'translateY(-2px)',
-            boxShadow: 'md',
+            bg: mode('brand.500', 'brand.400')(props),
+            transform: 'translateY(-1px)',
           },
         }),
         outline: (props) => ({
-          borderColor: mode('brand.500', 'brand.200')(props),
-          color: mode('brand.500', 'brand.200')(props),
+          borderColor: mode('brand.400', 'brand.300')(props),
+          color: mode('brand.400', 'brand.300')(props),
           _hover: {
-            bg: mode('brand.50', 'brand.900')(props),
-            transform: 'translateY(-2px)',
-            boxShadow: 'md',
+            bg: mode('facebook.hover', 'whiteAlpha.200')(props),
           },
         }),
       },
@@ -76,27 +56,27 @@ const theme = extendTheme({
       baseStyle: (props) => ({
         container: {
           bg: mode('white', 'gray.800')(props),
-          borderRadius: 'lg',
-          boxShadow: 'sm',
+          borderRadius: '8px',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
           transition: 'all 0.2s',
           _hover: {
-            boxShadow: 'md',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
           },
         },
       }),
     },
     Heading: {
       baseStyle: {
-        fontFamily: '"Playfair Display", serif',
-        fontWeight: 'bold',
+        fontFamily: '"-apple-system", "system-ui", BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+        fontWeight: '600',
       },
     },
   },
   styles: {
     global: (props) => ({
       body: {
-        bg: mode('gray.50', 'gray.900')(props),
-        color: mode('gray.800', 'whiteAlpha.900')(props),
+        bg: mode('facebook.bg', 'gray.900')(props),
+        color: mode('facebook.text', 'whiteAlpha.900')(props),
       },
     }),
   },

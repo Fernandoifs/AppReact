@@ -5,11 +5,12 @@ import { format } from 'date-fns';
 import { useDisclosure } from '@chakra-ui/react';
 import AttendanceList from '../components/services/AttendanceList';
 import { useState } from 'react';
+import BottomNavigation from '../components/shared/BottomNavigation';
 
 const Services = () => {
   const { events } = useEvents();
-  const bgColor = useColorModeValue('gray.50', 'gray.900');
-  const cardBg = useColorModeValue('white', 'gray.800');
+  const bgColor = 'white';
+  const cardBg = 'white';
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -56,6 +57,7 @@ const Services = () => {
         onClose={onClose} 
         event={selectedEvent}
       />
+      <BottomNavigation />
     </Box>
   );
 };

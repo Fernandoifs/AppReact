@@ -1,5 +1,5 @@
 import { HStack, IconButton, useColorModeValue } from '@chakra-ui/react';
-import { FaHome, FaCalendarAlt, FaPray, FaHandHoldingHeart } from 'react-icons/fa';
+import { FaHome, FaCalendarAlt, FaBook, FaHandHoldingHeart } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 
 const BottomNavigation = () => {
@@ -19,10 +19,11 @@ const BottomNavigation = () => {
       right={0}
       zIndex={10}
       boxShadow="0 -2px 10px rgba(0,0,0,0.1)"
+      display={{ base: 'flex', md: 'none' }} // Show on mobile, hide on desktop
     >
       <IconButton as={RouterLink} to="/" aria-label="Início" icon={<FaHome />} variant="ghost" />
       <IconButton as={RouterLink} to="/events" aria-label="Eventos" icon={<FaCalendarAlt />} variant="ghost" />
-      <IconButton as={RouterLink} to="/prayer" aria-label="Oração" icon={<FaPray />} variant="ghost" />
+      <IconButton as={RouterLink} to="/bible" aria-label="Bíblia" icon={<FaBook />} variant="ghost" />
       <IconButton as={RouterLink} to="/donate" aria-label="Doações" icon={<FaHandHoldingHeart />} variant="ghost" />
     </HStack>
   );

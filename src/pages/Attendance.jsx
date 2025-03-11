@@ -1,7 +1,9 @@
 import { useParams } from 'react-router-dom';
 import { Box, Container, Heading, VStack, Checkbox, Button, Text } from '@chakra-ui/react';
+import BottomNavigation from '../components/shared/BottomNavigation';
 import { useEvents } from '../contexts/EventsContext';
 import { useAttendance } from '../contexts/AttendanceContext';
+import { format } from 'date-fns';
 
 const Attendance = () => {
   const { serviceId } = useParams();
@@ -13,8 +15,9 @@ const Attendance = () => {
 
   if (!service) {
     return (
-      <Container>
-        <Text>Culto não encontrado</Text>
+      <Container maxW="container.md" py={8}>
+        <Text fontSize="lg" color="red.500">Culto não encontrado</Text>
+        <BottomNavigation />
       </Container>
     );
   }
@@ -23,7 +26,7 @@ const Attendance = () => {
     <Container maxW="container.md" py={8}>
       <VStack spacing={6} align="stretch">
         <Heading size="lg">{service.title} - Lista de Presença</Heading>
-        <Text>{format(new Date(service.start), "dd/MM/yyyy 'às' HH:mm")}</Text>
+        <Text>{format(new Date(`${service.date}T${service.time}`), "dd/MM/yyyy 'às' HH:mm")}</Text>
         
         {/* Add your member list with checkboxes here */}
         <Box>
@@ -38,6 +41,7 @@ const Attendance = () => {
 
         <Button colorScheme="blue">Salvar Lista</Button>
       </VStack>
+      <BottomNavigation />
     </Container>
   );
 };

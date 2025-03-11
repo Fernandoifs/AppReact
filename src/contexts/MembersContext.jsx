@@ -1,9 +1,14 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import membersData from '../mocks/members.json';
 
 const MembersContext = createContext();
 
 export const MembersProvider = ({ children }) => {
   const [members, setMembers] = useState([]);
+
+  useEffect(() => {
+    setMembers(membersData.members);
+  }, []);
 
   const addMember = (newMember) => {
     setMembers(prev => [...prev, newMember]);

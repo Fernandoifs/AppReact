@@ -7,18 +7,19 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaUsers, FaCalendarAlt, FaHandHoldingHeart, FaCog, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaHome, FaUsers, FaCalendarAlt, FaHandHoldingHeart, FaCog, FaChevronLeft, FaChevronRight, FaBook } from 'react-icons/fa';
 import { useSidebar } from '../contexts/SidebarContext';
 
 const Sidebar = () => {
   const { isCollapsed, setIsCollapsed } = useSidebar();
-  const bgColor = useColorModeValue('white', 'gray.800');
+  const bgColor = 'white';
 
   const menuItems = [
     { icon: <FaHome size="20" />, label: 'Home', path: '/' },
     { icon: <FaUsers size="20" />, label: 'Membros', path: '/members' },
     { icon: <FaCalendarAlt size="20" />, label: 'Eventos', path: '/events' },
     { icon: <FaHandHoldingHeart size="20" />, label: 'Serviços', path: '/services' },
+    { icon: <FaBook size="20" />, label: 'Bíblia', path: '/bible' },
     { icon: <FaCog size="20" />, label: 'Configurações', path: '/settings' },
   ];
 

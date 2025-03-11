@@ -1,41 +1,29 @@
-import { Box, Flex, VStack, Link, Icon } from '@chakra-ui/react'
-import { Link as RouterLink } from 'react-router-dom'
-import { FaHome, FaUsers, FaCalendarAlt, FaPray, FaMoneyBillWave } from 'react-icons/fa'
+import { Box, Flex, useBreakpointValue } from '@chakra-ui/react'
+import Sidebar from '../components/Sidebar'
+import { useSidebar } from '../contexts/SidebarContext'
 
 const MainLayout = ({ children }) => {
-  const menuItems = [
-    { name: 'Home', icon: FaHome, path: '/' },
-    { name: 'Membros', icon: FaUsers, path: '/members' },
-    { name: 'Programações', icon: FaCalendarAlt, path: '/events' },
-    { name: 'Cultos', icon: FaPray, path: '/services' },
-    { name: 'Finanças', icon: FaMoneyBillWave, path: '/finance' }
-  ]
+  const showSidebar = useBreakpointValue({ base: false, lg: true })
+  const { isCollapsed } = useSidebar()
 
   return (
     <Flex h="100vh">
-      {/* Sidebar */}
-      <Box w="250px" bg="gray.800" color="white" p={4}>
-        <VStack spacing={4} align="stretch">
-          {menuItems.map((item) => (
-            <Link
-              key={item.path}
-              as={RouterLink}
-              to={item.path}
-              p={2}
-              borderRadius="md"
-              _hover={{ bg: 'gray.700' }}
-              display="flex"
-              alignItems="center"
-            >
-              <Icon as={item.icon} mr={3} />
-              {item.name}
-            </Link>
-          ))}
-        </VStack>
-      </Box>
+      {/* Sidebar - Only shown on desktop */}
+      {showSidebar && (
+        <Box position="fixed" h="100vh" zIndex={1}>
+          <Sidebar />
+        </Box>
+      )}
 
       {/* Main Content */}
-      <Box flex={1} p={4} bg="gray.100">
+      <Box
+        flex={1}
+        p={4}
+        bg="facebook.bg"
+        ml={showSidebar ? (isCollapsed ? "60px" : "280px") : 0}
+        transition="margin-left 0.3s"
+        w="100%"
+      >
         {children}
       </Box>
     </Flex>
