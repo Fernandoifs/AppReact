@@ -1,0 +1,64 @@
+{
+  "members": [
+    {
+      "id": 1,
+      "name": "João Silva",
+      "role": "Pastor",
+      "email": "joao.silva@email.com",
+      "phone": "(11) 98765-4321",
+      "birthDate": "1975-05-15",
+      "address": "Rua das Flores, 123",
+      "ministry": "Pastoral",
+      "status": "Ativo",
+      "photo": "/avatars/member1.jpg"
+    },
+    {
+      "id": 2,
+      "name": "Maria Santos",
+      "role": "Líder de Louvor",
+      "email": "maria.santos@email.com",
+      "phone": "(11) 98765-4322",
+      "birthDate": "1988-08-20",
+      "address": "Av. Principal, 456",
+      "ministry": "Louvor",
+      "status": "Ativo",
+      "photo": "/avatars/member2.jpg"
+    },
+    {
+      "id": 3,
+      "name": "Pedro Oliveira",
+      "role": "Diácono",
+      "email": "pedro.oliveira@email.com",
+      "phone": "(11) 98765-4323",
+      "birthDate": "1980-03-10",
+      "address": "Rua do Comércio, 789",
+      "ministry": "Diaconia",
+      "status": "Ativo",
+      "photo": "/avatars/member3.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Ana Costa",
+      "role": "Professora",
+      "email": "ana.costa@email.com",
+      "phone": "(11) 98765-4324",
+      "birthDate": "1992-11-25",
+      "address": "Av. das Palmeiras, 321",
+      "ministry": "Educação",
+      "status": "Ativo",
+      "photo": "/avatars/member4.jpg"
+    },
+    {
+      "id": 5,
+      "name": "Carlos Souza",
+      "role": "Membro",
+      "email": "carlos.souza@email.com",
+      "phone": "(11) 98765-4325",
+      "birthDate": "1995-07-30",
+      "address": "Rua dos Pinheiros, 654",
+      "ministry": "Juventude",
+      "status": "Ativo",
+      "photo": "/avatars/member5.jpg"
+    }
+  ]
+}

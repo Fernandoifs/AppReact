@@ -18,31 +18,33 @@ import {
   useToast,
   Select,
 } from '@chakra-ui/react';
-import { FaPlus, FaList, FaTh,FaSort } from 'react-icons/fa';
+import { FaPlus, FaList, FaTh, FaSort } from 'react-icons/fa';
 import SearchBar from '../components/members/SearchBar';
 import MemberCard from '../components/members/MemberCard';
 import MemberForm from '../components/members/MemberForm';
-import { useMembers } from '../contexts/MembersContext';
-// Add this import at the top with other imports
 import BottomNavigation from '../components/shared/BottomNavigation';
-
-// Remove these unnecessary imports as they're now handled in the BottomNavigation component
-// import { HStack } from '@chakra-ui/react';
-// import { FaHome, FaCalendarAlt, FaPray, FaHandHoldingHeart } from 'react-icons/fa';
-// import { Link as RouterLink } from 'react-router-dom';
+import membersData from '../mocks/members.json';
+import { useMembers } from '../contexts/MembersContext';
 
 const Members = () => {
+  // Remove this useEffect as it's overwriting our mock data
+  // useEffect(() => {
+  //   setFilteredMembers(members);
+  // }, [members]);
+  
+  // Update the initial filteredMembers state
   const { members, addMember, updateMember, deleteMember } = useMembers();
-  const [filteredMembers, setFilteredMembers] = useState(members);
+  const [filteredMembers, setFilteredMembers] = useState(membersData.members);
   const [editingMember, setEditingMember] = useState(null);
   const [viewMode, setViewMode] = useState('table');
   const [sortBy, setSortBy] = useState('name');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  // Add these lines
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const cardBg = useColorModeValue('white', 'gray.800');
-
-  // Sort members
+  
+  // Add the sortedMembers definition
   const sortedMembers = [...filteredMembers].sort((a, b) => {
     switch (sortBy) {
       case 'name':
@@ -58,13 +60,16 @@ const Members = () => {
     }
   });
 
-  // Update the table to use sortedMembers instead of filteredMembers
+  // Keep only one useEffect for handling mock data
   useEffect(() => {
-    setFilteredMembers(members);
+    const initialMembers = members.length > 0 ? members : membersData.members;
+    setFilteredMembers(initialMembers);
   }, [members]);
 
+  // Update the search handler to use the correct data source
   const handleSearch = (searchTerm) => {
-    const filtered = members.filter(
+    const dataSource = members.length > 0 ? members : membersData.members;
+    const filtered = dataSource.filter(
       (member) =>
         member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         member.role.toLowerCase().includes(searchTerm.toLowerCase())

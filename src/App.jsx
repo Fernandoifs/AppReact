@@ -13,10 +13,11 @@ import { SidebarProvider } from './contexts/SidebarContext'
 import { AttendanceProvider } from './contexts/AttendanceContext'
 import { ServicesProvider } from './contexts/ServicesContext'
 import { MembersProvider } from './contexts/MembersContext';
+import theme from './theme';
 
 function App() {
   return (
-    <ChakraProvider resetCSS>
+    <ChakraProvider theme={theme} resetCSS>
       <SidebarProvider>
         <EventsProvider>
           <ServicesProvider>

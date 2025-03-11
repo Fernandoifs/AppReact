@@ -1,0 +1,54 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "title": "Culto de Domingo",
+      "category": "Culto",
+      "description": "Culto dominical com louvor e pregação da palavra",
+      "date": "2024-01-21",
+      "time": "19:00",
+      "location": "Templo Principal",
+      "status": "Confirmado"
+    },
+    {
+      "id": 2,
+      "title": "Escola Bíblica Dominical",
+      "category": "Estudo",
+      "description": "Estudo bíblico para todas as idades",
+      "date": "2024-01-21",
+      "time": "09:00",
+      "location": "Salas de Estudo",
+      "status": "Confirmado"
+    },
+    {
+      "id": 3,
+      "title": "Culto de Oração",
+      "category": "Oração",
+      "description": "Momento dedicado à oração e intercessão",
+      "date": "2024-01-23",
+      "time": "19:30",
+      "location": "Sala de Oração",
+      "status": "Confirmado"
+    },
+    {
+      "id": 4,
+      "title": "Encontro de Jovens",
+      "category": "Juventude",
+      "description": "Reunião especial para jovens com louvor e comunhão",
+      "date": "2024-01-27",
+      "time": "20:00",
+      "location": "Salão Social",
+      "status": "Confirmado"
+    },
+    {
+      "id": 5,
+      "title": "Culto de Família",
+      "category": "Família",
+      "description": "Celebração especial para famílias",
+      "date": "2024-01-28",
+      "time": "19:00",
+      "location": "Templo Principal",
+      "status": "Confirmado"
+    }
+  ]
+}

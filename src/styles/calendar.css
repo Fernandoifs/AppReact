@@ -1,0 +1,9 @@
+.custom-calendar .rbc-header {
+  background-color: #f7fafc;
+  color: #333;
+  padding: 10px;
+}
+
+.custom-calendar .rbc-today {
+  background-color: #ebf8ff;
+}
