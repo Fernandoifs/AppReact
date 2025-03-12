@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Container,
@@ -9,7 +9,6 @@ import {
   Text,
   VStack,
   Grid,
-  useColorModeValue,
   Button,
   Spinner,
   Alert,
@@ -32,25 +31,60 @@ const Bible = () => {
   const [view, setView] = useState('books');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [bibles] = useState(bibleData.bibles);
-  const [selectedBible, setSelectedBible] = useState(bibleData.bibles[0]?.id);
-  const [books, setBooks] = useState(bibleData.books);
+  const [selectedBible, setSelectedBible] = useState(bibleData.biblia?.id || 'nlth');
+  const [books, setBooks] = useState(() => {
+    return bibleData.biblia?.livros?.map(book => ({
+      id: book.id,
+      name: book.nome
+    })) || [];
+  });
   const [chapters, setChapters] = useState([]);
   const [verses, setVerses] = useState([]);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentVerse, setCurrentVerse] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedVerse, setSelectedVerse] = useState(null);
 
   const handleBookSelect = (book) => {
-    const bookChapters = bibleData.chapters[book.id] || [];
+    const bookData = bibleData.biblia?.livros?.find(b => b.id === book.id);
+    if (!bookData) {
+      setError('Livro não encontrado.');
+      return;
+    }
+    if (!bookData.capitulos?.length) {
+      setError('Este livro ainda não está disponível.');
+      return;
+    }
+    const bookChapters = bookData.capitulos.map(cap => ({
+      id: `${book.id}${cap.numero}`,
+      number: cap.numero
+    }));
     setChapters(bookChapters);
     setSelectedBook(book);
     setView('chapters');
+    setError(null);
   };
 
   const handleChapterSelect = (chapter) => {
-    const chapterVerses = bibleData.verses[chapter.id] || [];
+    const bookData = bibleData.biblia?.livros?.find(b => b.id === selectedBook.id);
+    if (!bookData) {
+      setError('Livro não encontrado.');
+      return;
+    }
+    const chapterData = bookData.capitulos.find(cap => cap.numero === chapter.number);
+    if (!chapterData || !chapterData.versiculos) {
+      setError('Este capítulo ainda não está disponível.');
+      return;
+    }
+    const chapterVerses = chapterData.versiculos.map(verse => ({
+      id: `${selectedBook.id}${chapter.number}${verse.numero}`,
+      number: verse.numero,
+      content: verse.texto
+    }));
     setVerses(chapterVerses);
     setSelectedChapter(chapter.number);
     setView('verses');
+    setError(null);
   };
 
   const handleBack = () => {
@@ -128,26 +162,90 @@ const Bible = () => {
     </SimpleGrid>
   );
 
+  const handleTextToSpeech = () => {
+    if (!verses.length) return;
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setCurrentVerse(null);
+      return;
+    }
+
+    setIsSpeaking(true);
+    const utterances = verses.map((verse) => {
+      const utterance = new SpeechSynthesisUtterance(`Versículo ${verse.number}. ${verse.content}`);
+      utterance.lang = 'pt-BR';
+      utterance.onstart = () => setCurrentVerse(verse.id);
+      utterance.onend = () => {
+        if (verse === verses[verses.length - 1]) {
+          setIsSpeaking(false);
+          setCurrentVerse(null);
+        }
+      };
+      return utterance;
+    });
+
+    utterances.forEach(utterance => window.speechSynthesis.speak(utterance));
+  };
+
+  const handleVerseSelect = (verse) => {
+    setSelectedVerse(verse);
+  };
+
   const renderVerses = () => (
     <Box>
       <Box position="fixed" bottom={20} right={4} zIndex={10}>
         <IconButton
-          aria-label="Read aloud"
+          aria-label={isSpeaking ? "Stop reading" : "Read aloud"}
           icon={<FaVolumeUp />}
-          colorScheme="blue"
+          colorScheme={isSpeaking ? "red" : "blue"}
           rounded="full"
           size="lg"
+          onClick={handleTextToSpeech}
         />
       </Box>
-      <SimpleGrid columns={1} spacing={4}>
-        {verses.map((verse) => (
-          <Box key={verse.id} p={4}>
-            <Text color={textColor}>
-              <Text as="span" fontWeight="bold" color={textColor}>{verse.number}</Text> {verse.content}
-            </Text>
+      <VStack spacing={4} align="stretch" bg="black" minH="100vh">
+        <Box p={4}>
+          <Heading size="lg" color={textColor} mb={6}>
+            {selectedBook?.name}
+          </Heading>
+          <Heading size="xl" color={textColor} mb={8} textAlign="center">
+            {selectedChapter}
+          </Heading>
+          <Box>
+            {verses.map((verse) => (
+              <Text
+                key={verse.id}
+                fontSize="lg"
+                color={textColor}
+                mb={4}
+                onClick={() => handleVerseSelect(verse)}
+                cursor="pointer"
+                _hover={{ bg: 'gray.700' }}
+                p={2}
+                borderRadius="md"
+              >
+                <Text as="sup" fontSize="sm" mr={2} color="gray.400">
+                  {verse.number}
+                </Text>
+                {verse.content}
+              </Text>
+            ))}
           </Box>
-        ))}
-      </SimpleGrid>
+        </Box>
+      </VStack>
+      {error && (
+        <Alert status="error" mt={4}>
+          <AlertIcon />
+          {error}
+        </Alert>
+      )}
+      {loading && (
+        <Box textAlign="center" mt={4}>
+          <Spinner size="lg" />
+        </Box>
+      )}
     </Box>
   );
 
@@ -163,7 +261,7 @@ const Bible = () => {
           <Heading display="flex" alignItems="center" gap={2}>
             <FaBook />
             {view === 'books' && 'Bíblia Sagrada'}
-            {view === 'chapters' && `Livro de ${selectedBook.name}`}
+            {view === 'chapters' && `${selectedBook.name}`}
             {view === 'verses' && `${selectedBook.name} Capítulo ${selectedChapter}`}
           </Heading>
         </Grid>

@@ -1,65 +1,188 @@
 {
-  "bibles": [
-    {
-      "id": "nvi",
-      "name": "Nova Versão Internacional"
+    "biblia": {
+        "id": "nlth",
+        "versao": "Nova Tradução na Linguagem de Hoje (NTLH)",
+        "livros": [
+            {
+                "nome": "Gênesis",
+                "abreviacao": "Gn",
+                "id": "gen",
+                "capitulos": [
+                    {
+                        "numero": 1,
+                        "id": "gen1",
+                        "versiculos": [
+                            {
+                                "numero": 1,
+                                "texto": "No começo Deus criou os céus e a terra."
+                            },
+                            {
+                                "numero": 2,
+                                "texto": "A terra era um vazio, sem nenhum ser vivente, e estava coberta por um mar profundo. A escuridão cobria o mar, e o Espírito de Deus se movia por cima da água."
+                            },
+                            {
+                                "numero": 3,
+                                "texto": "Então Deus disse: — Que haja luz! E a luz começou a existir."
+                            },
+                            {
+                                "numero": 4,
+                                "texto": "Deus viu que a luz era boa e a separou da escuridão."
+                            },
+                            {
+                                "numero": 5,
+                                "texto": "Deus pôs na luz o nome de 'dia' e na escuridão pôs o nome de 'noite'. A noite passou, e veio a manhã. Esse foi o primeiro dia."
+                            },
+                            {
+                                "numero": 6,
+                                "texto": "Então Deus disse: — Que haja no meio da água uma divisão para separá-la em duas partes!"
+                            },
+                            {
+                                "numero": 7,
+                                "texto": "E assim aconteceu. Deus fez uma divisão que separou a água em duas partes: uma parte ficou do lado de baixo da divisão, e a outra parte ficou do lado de cima."
+                            },
+                            {
+                                "numero": 8,
+                                "texto": "Nessa divisão Deus pôs o nome de 'céu'. A noite passou, e veio a manhã. Esse foi o segundo dia."
+                            },
+                            {
+                                "numero": 9,
+                                "texto": "Aí Deus disse: — Que a água que está debaixo do céu se ajunte num só lugar a fim de que apareça a terra seca! E assim aconteceu."
+                            },
+                            {
+                                "numero": 10,
+                                "texto": "Deus pôs na parte seca o nome de 'terra' e nas águas que se haviam ajuntado ele pôs o nome de 'mares'. E Deus viu que o que havia feito era bom."
+                            },
+                            {
+                                "numero": 11,
+                                "texto": "Em seguida ele disse: — Que a terra produza todo tipo de vegetais, isto é, plantas que deem sementes e árvores que deem frutas!"
+                            },
+                            {
+                                "numero": 12,
+                                "texto": "E assim aconteceu. A terra produziu todo tipo de vegetais, isto é, plantas que dão sementes e árvores que dão frutas. E Deus viu que o que havia feito era bom."
+                            },
+                            {
+                                "numero": 13,
+                                "texto": "A noite passou, e veio a manhã. Esse foi o terceiro dia."
+                            },
+                            {
+                                "numero": 14,
+                                "texto": "Então Deus disse: — Que haja luzes no céu para separarem o dia da noite e para marcarem os dias, os anos e as estações!"
+                            },
+                            {
+                                "numero": 15,
+                                "texto": "Que essas luzes brilhem no céu para iluminar a terra! E assim aconteceu."
+                            },
+                            {
+                                "numero": 16,
+                                "texto": "Deus fez as duas grandes luzes: a maior para governar o dia e a menor para governar a noite. E fez também as estrelas."
+                            },
+                            {
+                                "numero": 17,
+                                "texto": "Deus pôs essas luzes no céu para iluminarem a terra,"
+                            },
+                            {
+                                "numero": 18,
+                                "texto": "para governarem o dia e a noite e para separarem a luz da escuridão. E Deus viu que o que havia feito era bom."
+                            },
+                            {
+                                "numero": 19,
+                                "texto": "A noite passou, e veio a manhã. Esse foi o quarto dia."
+                            },
+                            {
+                                "numero": 20,
+                                "texto": "Depois Deus disse: — Que as águas fiquem cheias de todo tipo de seres vivos, e que na terra haja aves que voem no ar!"
+                            },
+                            {
+                                "numero": 21,
+                                "texto": "Assim Deus criou os grandes monstros do mar e todas as espécies de seres vivos que as águas produzem e todas as espécies de aves. E Deus viu que o que havia feito era bom."
+                            },
+                            {
+                                "numero": 22,
+                                "texto": "Então Deus abençoou os seres vivos, dizendo: — Aumentem muito em número e encham as águas dos mares! E que as aves se multipliquem na terra!"
+                            },
+                            {
+                                "numero": 23,
+                                "texto": "A noite passou, e veio a manhã. Esse foi o quinto dia."
+                            },
+                            {
+                                "numero": 24,
+                                "texto": "Depois Deus disse: — Que a terra produza todo tipo de seres vivos: animais domésticos, animais selvagens e animais que se arrastam pelo chão!"
+                            },
+                            {
+                                "numero": 25,
+                                "texto": "E assim aconteceu. Então Deus fez os animais selvagens, os animais domésticos e todos os animais que se arrastam pelo chão. E Deus viu que o que havia feito era bom."
+                            },
+                            {
+                                "numero": 26,
+                                "texto": "Aí ele disse: — Agora vamos fazer os seres humanos, que serão como nós, que se parecerão conosco. Eles terão poder sobre os peixes, sobre as aves, sobre os animais domésticos e selvagens e sobre os animais que se arrastam pelo chão."
+                            },
+                            {
+                                "numero": 27,
+                                "texto": "Assim Deus criou os seres humanos; ele os criou parecidos com Deus. Ele os criou homem e mulher"
+                            },
+                            {
+                                "numero": 28,
+                                "texto": "e os abençoou, dizendo: — Tenham muitos e muitos filhos; espalhem-se por toda a terra e a dominem; e tenham poder sobre os peixes, sobre as aves e sobre os animais que se movem pelo chão."
+                            },
+                            {
+                                "numero": 29,
+                                "texto": "Para vocês se alimentarem eu lhes dou todas as plantas que produzem sementes e todas as árvores que dão frutas."
+                            },
+                            {
+                                "numero": 30,
+                                "texto": "Mas para todos os animais selvagens, para as aves e para os animais que se arrastam pelo chão, eu dou capim e verduras para alimento. E assim aconteceu."
+                            },
+                            {
+                                "numero": 31,
+                                "texto": "E Deus viu que tudo o que havia feito era muito bom. A noite passou, e veio a manhã. Esse foi o sexto dia."
+                            }
+                        ]
+                    },
+                    {
+                        "numero": 2,
+                        "id": "gen2"
+                    },
+                    {
+                        "numero": 3,
+                        "id": "gen3"
+                    }
+                ]
+            },
+            {
+                "nome": "Êxodo",
+                "abreviacao": "Ex",
+                "id": "exo",
+                "capitulos": [
+                    {
+                        "numero": 1,
+                        "id": "gen1",
+                        "versiculos": [
+                            {
+                                "numero": 1,
+                                "texto": "Não implentado."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "nome": "Levítico",
+                "abreviacao": "Lv",
+                "id": "lev",
+                "capitulos": []
+            },
+            {
+                "nome": "Números",
+                "abreviacao": "Nm",
+                "id": "num",
+                "capitulos": []
+            },
+            {
+                "nome": "Deuteronômio",
+                "abreviacao": "Dt",
+                "id": "deu",
+                "capitulos": []
+            }
+        ]
     }
-  ],
-  "books": [
-    {
-      "id": "gen",
-      "name": "Gênesis"
-    },
-    {
-      "id": "exo",
-      "name": "Êxodo"
-    },
-    {
-      "id": "lev",
-      "name": "Levítico"
-    },
-    {
-      "id": "num",
-      "name": "Números"
-    },
-    {
-      "id": "deu",
-      "name": "Deuteronômio"
-    }
-  ],
-  "chapters": {
-    "gen": [
-      {
-        "id": "gen1",
-        "number": 1
-      },
-      {
-        "id": "gen2",
-        "number": 2
-      },
-      {
-        "id": "gen3",
-        "number": 3
-      }
-    ]
-  },
-  "verses": {
-    "gen1": [
-      {
-        "id": "gen1v1",
-        "number": 1,
-        "content": "No princípio Deus criou os céus e a terra."
-      },
-      {
-        "id": "gen1v2",
-        "number": 2,
-        "content": "Era a terra sem forma e vazia; trevas cobriam a face do abismo, e o Espírito de Deus se movia sobre a face das águas."
-      },
-      {
-        "id": "gen1v3",
-        "number": 3,
-        "content": "Disse Deus: 'Haja luz', e houve luz."
-      }
-    ]
-  }
 }
