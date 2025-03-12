@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -8,217 +8,169 @@ import {
   CardBody,
   Text,
   VStack,
+  Grid,
+  useColorModeValue,
+  Button,
+  Spinner,
+  Alert,
+  AlertIcon,
   Input,
   InputGroup,
   InputLeftElement,
-  Select,
-  useToast,
-  Spinner,
-  Center,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  useColorModeValue,
+  IconButton,
 } from '@chakra-ui/react';
-import { debounce } from 'lodash';
-import { FaSearch, FaBook } from 'react-icons/fa';
+import { FaBook, FaArrowLeft, FaSearch, FaVolumeUp } from 'react-icons/fa';
 import BottomNavigation from '../components/shared/BottomNavigation';
+import bibleData from '../mocks/bible.json';
 
 const Bible = () => {
-  const bgColor = useColorModeValue('gray.50', 'gray.900');
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const toast = useToast();
-  const [error, setError] = useState(null);
-
+  const bgColor = 'black';
+  const cardBg = 'gray.800';
+  const textColor = 'white';
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [view, setView] = useState('books');
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBook, setSelectedBook] = useState('');
-  const [selectedChapter, setSelectedChapter] = useState('');
-  const [selectedVerse, setSelectedVerse] = useState('');
+  const [error, setError] = useState(null);
+  const [bibles] = useState(bibleData.bibles);
+  const [selectedBible, setSelectedBible] = useState(bibleData.bibles[0]?.id);
+  const [books, setBooks] = useState(bibleData.books);
+  const [chapters, setChapters] = useState([]);
   const [verses, setVerses] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchBibleVerse = async (reference) => {
-    if (!reference) return;
-    setLoading(true);
-    setError(null);
-    try {
-      // Using the API.Bible endpoint instead
-      const encodedReference = encodeURIComponent(reference);
-      const response = await fetch(`https://api.scripture.api.bible/v1/bibles/b645d7facf5a5fa5-02/search?query=${encodedReference}`, {
-        headers: {
-          'api-key': 'e0cd5e3e2c9b5b3c8e7d5f5c5b3c8e7d',
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Não foi possível encontrar o versículo. Por favor, verifique a referência.');
-      }
-      
-      const data = await response.json();
-      
-      if (!data.data || data.data.length === 0) {
-        throw new Error('Versículo não encontrado. Por favor, tente uma referência diferente.');
-      }
-      
-      // Format the verses data from the new API response
-      const formattedVerses = data.data.verses.map(verse => ({
-        book: verse.reference.split(' ')[0],
-        chapter: verse.chapterNumber,
-        verse: verse.verseNumber,
-        text: verse.text
-      }));
-
-      setVerses(formattedVerses);
-    } catch (error) {
-      setError(error.message);
-      toast({
-        title: 'Erro',
-        description: error.message,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleBookSelect = (book) => {
+    const bookChapters = bibleData.chapters[book.id] || [];
+    setChapters(bookChapters);
+    setSelectedBook(book);
+    setView('chapters');
   };
 
-  useEffect(() => {
-    // Load initial verse
-    fetchBibleVerse('john 3:16');
-  }, []);
+  const handleChapterSelect = (chapter) => {
+    const chapterVerses = bibleData.verses[chapter.id] || [];
+    setVerses(chapterVerses);
+    setSelectedChapter(chapter.number);
+    setView('verses');
+  };
 
-  const debouncedSearch = useCallback(
-    debounce((term) => {
-      if (term.trim()) {
-        fetchBibleVerse(term);
-      }
-    }, 500),
-    []
-  );
+  const handleBack = () => {
+    if (view === 'verses') {
+      setView('chapters');
+      setSelectedChapter(null);
+    } else if (view === 'chapters') {
+      setView('books');
+      setSelectedBook(null);
+    }
+  };
 
   const handleSearch = (value) => {
     setSearchTerm(value);
-    debouncedSearch(value);
   };
 
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
-  };
+  const filteredBooks = books.filter(book =>
+    book.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const handleSelectionChange = () => {
-    if (selectedBook && selectedChapter && selectedVerse) {
-      const reference = `${selectedBook} ${selectedChapter}:${selectedVerse}`;
-      fetchBibleVerse(reference);
-    }
-  };
+  const renderBooks = () => (
+    <Box>
+      <InputGroup mb={4}>
+        <InputLeftElement pointerEvents="none">
+          <FaSearch color="gray.300" />
+        </InputLeftElement>
+        <Input 
+          placeholder="Pesquisar" 
+          color={textColor} 
+          value={searchTerm}
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+      </InputGroup>
+      <SimpleGrid columns={{ base: 2, md: 3, lg: 6 }} spacing={4}>
+        {filteredBooks.map((book) => (
+          <Card
+            key={book.id}
+            bg={cardBg}
+            onClick={() => handleBookSelect(book)}
+            cursor="pointer"
+            _hover={{ transform: 'translateY(-2px)' }}
+            transition="all 0.2s"
+          >
+            <CardBody>
+              <VStack spacing={2}>
+                <Text fontWeight="bold" textAlign="center" color={textColor}>
+                  {book.name}
+                </Text>
+              </VStack>
+            </CardBody>
+          </Card>
+        ))}
+      </SimpleGrid>
+    </Box>
+  );
 
-  useEffect(() => {
-    handleSelectionChange();
-  }, [selectedBook, selectedChapter, selectedVerse]);
+  const renderChapters = () => (
+    <SimpleGrid columns={{ base: 6, md: 8, lg: 12 }} spacing={4}>
+      {chapters.map((chapter) => (
+        <Card
+          key={chapter.id}
+          bg={cardBg}
+          onClick={() => handleChapterSelect(chapter)}
+          cursor="pointer"
+          _hover={{ transform: 'translateY(-2px)' }}
+          transition="all 0.2s"
+        >
+          <CardBody>
+            <Text fontWeight="bold" textAlign="center" color={textColor}>
+              {chapter.number}
+            </Text>
+          </CardBody>
+        </Card>
+      ))}
+    </SimpleGrid>
+  );
+
+  const renderVerses = () => (
+    <Box>
+      <Box position="fixed" bottom={20} right={4} zIndex={10}>
+        <IconButton
+          aria-label="Read aloud"
+          icon={<FaVolumeUp />}
+          colorScheme="blue"
+          rounded="full"
+          size="lg"
+        />
+      </Box>
+      <SimpleGrid columns={1} spacing={4}>
+        {verses.map((verse) => (
+          <Box key={verse.id} p={4}>
+            <Text color={textColor}>
+              <Text as="span" fontWeight="bold" color={textColor}>{verse.number}</Text> {verse.content}
+            </Text>
+          </Box>
+        ))}
+      </SimpleGrid>
+    </Box>
+  );
 
   return (
-    <Box bg={bgColor} minH="100vh" p={4}>
+    <Box bg={bgColor} minH="100vh" p={4} color={textColor}>
       <Container maxW="container.xl">
-        <Heading mb={6} display="flex" alignItems="center" gap={2}>
-          <FaBook />
-          Bíblia Sagrada
-        </Heading>
+        <Grid templateColumns="auto 1fr" gap={4} mb={6} alignItems="center">
+          {view !== 'books' && (
+            <Button leftIcon={<FaArrowLeft />} onClick={handleBack} variant="ghost">
+              Voltar
+            </Button>
+          )}
+          <Heading display="flex" alignItems="center" gap={2}>
+            <FaBook />
+            {view === 'books' && 'Bíblia Sagrada'}
+            {view === 'chapters' && `Livro de ${selectedBook.name}`}
+            {view === 'verses' && `${selectedBook.name} Capítulo ${selectedChapter}`}
+          </Heading>
+        </Grid>
 
-        {error && (
-          <Alert status="error" mb={6} borderRadius="md">
-            <AlertIcon />
-            <AlertTitle mr={2}>Erro!</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {/* Search and Filters */}
-        <VStack spacing={4} mb={6}>
-          <InputGroup>
-            <InputLeftElement pointerEvents="none">
-              <FaSearch color="gray.300" />
-            </InputLeftElement>
-            <Input
-              placeholder="Buscar na Bíblia (ex: joão 3:16)..."
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              onKeyPress={handleKeyPress}
-              bg={useColorModeValue('white', 'gray.800')}
-            />
-          </InputGroup>
-
-          <SimpleGrid columns={{ base: 2, md: 3 }} spacing={4} width="100%">
-            <Select
-              placeholder="Livro"
-              value={selectedBook}
-              onChange={(e) => setSelectedBook(e.target.value)}
-              bg={useColorModeValue('white', 'gray.800')}
-            >
-              <option value="genesis">Gênesis</option>
-              <option value="exodus">Êxodo</option>
-              <option value="leviticus">Levítico</option>
-              <option value="numbers">Números</option>
-              <option value="deuteronomy">Deuteronômio</option>
-              <option value="psalms">Salmos</option>
-              <option value="proverbs">Provérbios</option>
-              <option value="isaiah">Isaías</option>
-              <option value="matthew">Mateus</option>
-              <option value="mark">Marcos</option>
-              <option value="luke">Lucas</option>
-              <option value="john">João</option>
-              <option value="acts">Atos</option>
-              <option value="romans">Romanos</option>
-              <option value="revelation">Apocalipse</option>
-            </Select>
-            <Select
-              placeholder="Capítulo"
-              value={selectedChapter}
-              onChange={(e) => setSelectedChapter(e.target.value)}
-            >
-              {[...Array(50)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>{i + 1}</option>
-              ))}
-            </Select>
-            <Select
-              placeholder="Versículo"
-              value={selectedVerse}
-              onChange={(e) => setSelectedVerse(e.target.value)}
-            >
-              {[...Array(30)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>{i + 1}</option>
-              ))}
-            </Select>
-          </SimpleGrid>
-        </VStack>
-
-        {/* Loading State */}
-        {loading && (
-          <Center py={8}>
-            <Spinner size="xl" color="blue.500" />
-          </Center>
-        )}
-
-        {/* Bible Verses */}
-        {!loading && (
-          <SimpleGrid spacing={4}>
-            {verses.map((verse, index) => (
-              <Card key={index} bg={cardBg} _hover={{ transform: 'translateY(-2px)' }} transition="all 0.2s">
-                <CardBody>
-                  <VStack align="start" spacing={2}>
-                    <Text fontWeight="bold">
-                      {verse.book} {verse.chapter}:{verse.verse}
-                    </Text>
-                    <Text>{verse.text}</Text>
-                  </VStack>
-                </CardBody>
-              </Card>
-            ))}
-          </SimpleGrid>
-        )}
+        {view === 'books' && renderBooks()}
+        {view === 'chapters' && renderChapters()}
+        {view === 'verses' && renderVerses()}
       </Container>
 
       <BottomNavigation />

@@ -1,0 +1,65 @@
+{
+  "bibles": [
+    {
+      "id": "nvi",
+      "name": "Nova Versão Internacional"
+    }
+  ],
+  "books": [
+    {
+      "id": "gen",
+      "name": "Gênesis"
+    },
+    {
+      "id": "exo",
+      "name": "Êxodo"
+    },
+    {
+      "id": "lev",
+      "name": "Levítico"
+    },
+    {
+      "id": "num",
+      "name": "Números"
+    },
+    {
+      "id": "deu",
+      "name": "Deuteronômio"
+    }
+  ],
+  "chapters": {
+    "gen": [
+      {
+        "id": "gen1",
+        "number": 1
+      },
+      {
+        "id": "gen2",
+        "number": 2
+      },
+      {
+        "id": "gen3",
+        "number": 3
+      }
+    ]
+  },
+  "verses": {
+    "gen1": [
+      {
+        "id": "gen1v1",
+        "number": 1,
+        "content": "No princípio Deus criou os céus e a terra."
+      },
+      {
+        "id": "gen1v2",
+        "number": 2,
+        "content": "Era a terra sem forma e vazia; trevas cobriam a face do abismo, e o Espírito de Deus se movia sobre a face das águas."
+      },
+      {
+        "id": "gen1v3",
+        "number": 3,
+        "content": "Disse Deus: 'Haja luz', e houve luz."
+      }
+    ]
+  }
+}
