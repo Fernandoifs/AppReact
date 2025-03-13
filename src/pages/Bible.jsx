@@ -208,7 +208,7 @@ const Bible = () => {
       <VStack spacing={4} align="stretch" bg="black" minH="100vh">
         <Box p={4}>
           <Heading size="lg" color={textColor} mb={6}>
-            {selectedBook?.name}
+           {selectedBook?.name}
           </Heading>
           <Heading size="xl" color={textColor} mb={8} textAlign="center">
             {selectedChapter}
@@ -259,10 +259,8 @@ const Bible = () => {
             </Button>
           )}
           <Heading display="flex" alignItems="center" gap={2}>
-            <FaBook />
             {view === 'books' && 'Bíblia Sagrada'}
             {view === 'chapters' && `${selectedBook.name}`}
-            {view === 'verses' && `${selectedBook.name} Capítulo ${selectedChapter}`}
           </Heading>
         </Grid>
 
