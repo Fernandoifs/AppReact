@@ -20,7 +20,7 @@ import {
 } from '@chakra-ui/react';
 import { FaBook, FaArrowLeft, FaSearch, FaVolumeUp } from 'react-icons/fa';
 import BottomNavigation from '../components/shared/BottomNavigation';
-import bibleData from '../mocks/bible.json';
+import bibleData from '../mocks/biblev1.json';
 
 const Bible = () => {
   const bgColor = 'black';
@@ -95,6 +95,16 @@ const Bible = () => {
       setView('books');
       setSelectedBook(null);
     }
+  };
+
+  const resetToInitialState = () => {
+    setSelectedBook(null);
+    setSelectedChapter(null);
+    setView('books');
+    setChapters([]);
+    setVerses([]);
+    setError(null);
+    setSearchTerm('');
   };
 
   const handleSearch = (value) => {
@@ -250,7 +260,7 @@ const Bible = () => {
   );
 
   return (
-    <Box bg={bgColor} minH="100vh" p={4} color={textColor}>
+    <Box data-testid="bible-component" bg={bgColor} minH="100vh" p={4} color={textColor}>
       <Container maxW="container.xl">
         <Grid templateColumns="auto 1fr" gap={4} mb={6} alignItems="center">
           {view !== 'books' && (
@@ -269,7 +279,7 @@ const Bible = () => {
         {view === 'verses' && renderVerses()}
       </Container>
 
-      <BottomNavigation />
+      <BottomNavigation onBibleClick={resetToInitialState} />
     </Box>
   );
 };

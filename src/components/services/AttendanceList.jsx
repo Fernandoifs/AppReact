@@ -14,7 +14,6 @@ import {
   Checkbox,
   Button,
   ModalFooter,
-  Select,
   Box,
   Text,
   HStack,
@@ -22,29 +21,46 @@ import {
   InputGroup,
   InputLeftElement,
   Input,
+  IconButton,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useMembers } from '../../contexts/MembersContext';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { FaSearch, FaUserPlus } from 'react-icons/fa';
-import AddParticipantModal from './AddParticipantModal'; // Certifique-se de que este componente está definido
+import { FaSearch, FaUserPlus, FaLock, FaLockOpen } from 'react-icons/fa';
+import AddParticipantModal from './AddParticipantModal';
+import { useAttendance } from '../../contexts/AttendanceContext';
 
 const AttendanceList = ({ isOpen, onClose, event }) => {
   const { members } = useMembers();
+  const { saveAttendance, getServiceAttendance, isSaving } = useAttendance();
   const [attendance, setAttendance] = useState({});
   const [sortBy, setSortBy] = useState('name');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddingParticipant, setIsAddingParticipant] = useState(false);
   const [temporaryParticipants, setTemporaryParticipants] = useState([]);
+  const [isLocked, setIsLocked] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [originalAttendance, setOriginalAttendance] = useState(null);
 
   useEffect(() => {
-    // Reset attendance when modal opens
-    if (isOpen) {
-      setAttendance({});
+    if (isOpen && event?.id) {
+      const savedAttendance = getServiceAttendance(event.id);
+      if (savedAttendance?.attendanceList) {
+        setAttendance(savedAttendance.attendanceList);
+      } else {
+        setAttendance({});
+      }
+      setIsLocked(false);
+      setSelectedMember(null);
+      setIsEditing(false);
     }
-  }, [isOpen]);
+  }, [isOpen, event?.id, getServiceAttendance]);
 
   const handleCheckboxChange = (memberId, field, value) => {
+    if (isEditing && selectedMember?.id !== memberId) return;
+    
     setAttendance((prev) => ({
       ...prev,
       [memberId]: {
@@ -55,15 +71,51 @@ const AttendanceList = ({ isOpen, onClose, event }) => {
     }));
   };
 
-  const handleSave = () => {
+  const handleEdit = (member) => {
+    // If already editing another member, save changes first
+    if (selectedMember && selectedMember.id !== member.id) {
+      handleSaveEdit();
+    }
+    
+    // Salva o estado original da linha selecionada
+    setOriginalAttendance(attendance[member.id]);
+    setSelectedMember(member);
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = () => {
+    setIsEditing(false);
+    setSelectedMember(null);
+    setOriginalAttendance(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    
+    // Restaura o estado original da linha selecionada
+    if (selectedMember && originalAttendance) {
+      setAttendance((prev) => ({
+        ...prev,
+        [selectedMember.id]: originalAttendance,
+      }));
+    }
+    
+    setSelectedMember(null);
+    setOriginalAttendance(null);
+  };
+
+  const handleSave = async () => {
+    if (isLocked) return; // Impede o salvamento se a lista estiver bloqueada
     const attendanceData = {
       eventId: event.id,
       eventDate: event.date,
-      eventTitle: event.category, // Use event.category em vez de event.title
+      eventTitle: event.category,
       attendanceList: attendance,
     };
-    console.log('Saving attendance:', attendanceData);
-    onClose();
+    const success = await saveAttendance(attendanceData);
+    if (success) {
+      onClose();
+    }
   };
 
   const handleAddParticipant = () => {
@@ -74,13 +126,15 @@ const AttendanceList = ({ isOpen, onClose, event }) => {
     setTemporaryParticipants([...temporaryParticipants, participant]);
   };
 
-  // Filtra e ordena os membros
-  // Fix the syntax error in the filter and sort chain
+  const toggleLock = () => {
+    setIsLocked(!isLocked);
+  };
+
   const filteredAndSortedMembers = [...members, ...temporaryParticipants]
     .filter((member) =>
       member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (member.role && member.role.toLowerCase().includes(searchQuery.toLowerCase()))
-    ) // Added missing closing parenthesis here
+    )
     .sort((a, b) => {
       switch (sortBy) {
         case 'name':
@@ -97,17 +151,29 @@ const AttendanceList = ({ isOpen, onClose, event }) => {
     });
      
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+    <Modal isOpen={isOpen} onClose={isLocked ? undefined : onClose} size={{ base: "full", md: "xl" }}>
       <ModalOverlay />
-      <ModalContent maxW="900px">
+      <ModalContent maxW={{ base: "100%", md: "900px" }} minH={{ base: "100vh", md: "auto" }} m={{ base: 0, md: 4 }}>
         <ModalHeader>
-          <Text>{event?.category}</Text>
-          <Text fontSize="sm" color="gray.500">
-            {event?.date && format(new Date(event.date), "dd/MM/yyyy 'às' HH:mm")}
-          </Text>
+          <Flex justify="space-between" align="center">
+            <Box>
+              <Text>{event?.category}</Text>
+              <Text fontSize="sm" color="gray.500">
+                {event?.date && format(new Date(event.date), "dd/MM/yyyy 'às' HH:mm")}
+              </Text>
+            </Box>
+            <Tooltip label={isLocked ? "Desbloquear Lista" : "Bloquear Lista"}>
+              <IconButton
+                icon={isLocked ? <FaLock /> : <FaLockOpen />}
+                onClick={toggleLock}
+                variant="ghost"
+                colorScheme={isLocked ? "red" : "gray"}
+                aria-label={isLocked ? "Desbloquear Lista" : "Bloquear Lista"}
+              />
+            </Tooltip>
+          </Flex>
         </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
+        <ModalBody pb={{ base: 20, md: 6 }}>
           <Box mb={4}>
             <Flex gap={2}>
               <InputGroup flex={1}>
@@ -141,47 +207,85 @@ const AttendanceList = ({ isOpen, onClose, event }) => {
               </Tr>
             </Thead>
             <Tbody>
-              {filteredAndSortedMembers.map((member) => (
-                <Tr key={member.id}>
-                  <Td>{member.name}</Td>
-                  <Td textAlign="center">
-                    <Checkbox
-                      isChecked={attendance[member.id]?.present || false}
-                      onChange={(e) =>
-                        handleCheckboxChange(member.id, 'present', e.target.checked)
-                      }
-                    />
-                  </Td>
-                  <Td textAlign="center">
-                    <Checkbox
-                      isChecked={attendance[member.id]?.communion || false}
-                      onChange={(e) =>
-                        handleCheckboxChange(member.id, 'communion', e.target.checked)
-                      }
-                    />
-                  </Td>
-                  <Td textAlign="center">
-                    <Checkbox
-                      isChecked={attendance[member.id]?.visitor || false}
-                      onChange={(e) =>
-                        handleCheckboxChange(member.id, 'visitor', e.target.checked)
-                      }
-                    />
-                  </Td>
-                </Tr>
-              ))}
+              {filteredAndSortedMembers.map((member) => {
+                const hasValues = attendance[member.id]?.present || attendance[member.id]?.communion || attendance[member.id]?.visitor;
+                const isSelected = selectedMember?.id === member.id;
+
+                return (
+                  <Tr 
+                    key={member.id}
+                    bg={
+                      isSelected
+                        ? 'blue.50' // Linha selecionada para edição (sempre azul)
+                        : hasValues
+                        ? 'gray.100' // Linha com valores selecionados
+                        : 'transparent' // Linha sem valores selecionados
+                    }
+                    _hover={{ bg: isEditing ? 'default' : 'gray.50' }}
+                    onClick={() => !isEditing && handleEdit(member)}
+                    cursor={isEditing ? 'default' : 'pointer'}
+                  >
+                    <Td color={isSelected ? 'inherit' : hasValues ? 'gray.500' : 'inherit'}>
+                      {member.name}
+                    </Td>
+                    <Td textAlign="center">
+                      <Checkbox
+                        isChecked={attendance[member.id]?.present || false}
+                        onChange={(e) => handleCheckboxChange(member.id, 'present', e.target.checked)}
+                        isDisabled={isEditing && !isSelected}
+                      />
+                    </Td>
+                    <Td textAlign="center">
+                      <Checkbox
+                        isChecked={attendance[member.id]?.communion || false}
+                        onChange={(e) => handleCheckboxChange(member.id, 'communion', e.target.checked)}
+                        isDisabled={isEditing && !isSelected}
+                      />
+                    </Td>
+                    <Td textAlign="center">
+                      <Checkbox
+                        isChecked={attendance[member.id]?.visitor || false}
+                        onChange={(e) => handleCheckboxChange(member.id, 'visitor', e.target.checked)}
+                        isDisabled={isEditing && !isSelected}
+                      />
+                    </Td>
+                  </Tr>
+                );
+              })}
             </Tbody>
           </Table>
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handleSave}>
-            Salvar
-          </Button>
-          <Button onClick={onClose}>Cancelar</Button>
+          <HStack spacing={2}>
+            {isEditing && (
+              <>
+                <Button
+                  colorScheme="blue"
+                  onClick={handleSaveEdit}
+                >
+                  Salvar Edição
+                </Button>
+                <Button
+                  colorScheme="red"
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                >
+                  Cancelar
+                </Button>
+              </>
+            )}
+            <Button
+              colorScheme="blue"
+              onClick={handleSave}
+              isDisabled={isLocked || isSaving} // Desabilita o botão de salvar se a lista estiver bloqueada
+              isLoading={isSaving}
+            >
+              Salvar
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
 
-      {/* Modal para adicionar participantes */}
       <AddParticipantModal
         isOpen={isAddingParticipant}
         onClose={() => setIsAddingParticipant(false)}

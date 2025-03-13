@@ -6,21 +6,29 @@ import {
   useColorModeValue,
   Tooltip,
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaHome, FaUsers, FaCalendarAlt, FaHandHoldingHeart, FaCog, FaChevronLeft, FaChevronRight, FaBook } from 'react-icons/fa';
 import { useSidebar } from '../contexts/SidebarContext';
 
-const Sidebar = () => {
+const Sidebar = ({ onBibleClick }) => {
   const { isCollapsed, setIsCollapsed } = useSidebar();
   const bgColor = 'white';
+  const navigate = useNavigate();
+
+  const handleBibleClick = () => {
+    if (onBibleClick) {
+      onBibleClick(); // Chama a função para resetar o estado
+    }
+    navigate('/bible'); // Navega para a página da Bíblia
+  };
 
   const menuItems = [
-    { icon: <FaHome size="20" />, label: 'Home', path: '/' },
-    { icon: <FaUsers size="20" />, label: 'Membros', path: '/members' },
-    { icon: <FaCalendarAlt size="20" />, label: 'Eventos', path: '/events' },
-    { icon: <FaHandHoldingHeart size="20" />, label: 'Serviços', path: '/services' },
-    { icon: <FaBook size="20" />, label: 'Bíblia', path: '/bible' },
-    { icon: <FaCog size="20" />, label: 'Configurações', path: '/settings' },
+    { icon: <FaHome size="20" />, label: 'Home', path: '/', onClick: null },
+    { icon: <FaUsers size="20" />, label: 'Membros', path: '/members', onClick: null },
+    { icon: <FaCalendarAlt size="20" />, label: 'Eventos', path: '/events', onClick: null },
+    { icon: <FaHandHoldingHeart size="20" />, label: 'Serviços', path: '/services', onClick: null },
+    { icon: <FaBook size="20" />, label: 'Bíblia', path: '/bible', onClick: handleBibleClick }, // Adiciona o manipulador de clique
+    { icon: <FaCog size="20" />, label: 'Configurações', path: '/settings', onClick: null },
   ];
 
   return (
@@ -63,6 +71,7 @@ const Sidebar = () => {
               borderRadius="md"
               _hover={{ bg: 'gray.100' }}
               color="gray.700"
+              onClick={item.onClick} // Adiciona o manipulador de clique
             >
               {item.icon}
               {!isCollapsed && (

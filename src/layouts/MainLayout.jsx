@@ -6,12 +6,24 @@ const MainLayout = ({ children }) => {
   const showSidebar = useBreakpointValue({ base: false, lg: true })
   const { isCollapsed } = useSidebar()
 
+  // Extract the resetToInitialState function from the Bible component
+  const handleBibleReset = () => {
+    // Find the Bible component instance and call its resetToInitialState
+    const bibleComponent = document.querySelector('[data-testid="bible-component"]');
+    if (bibleComponent && bibleComponent.__reactFiber$) {
+      const bibleInstance = bibleComponent.__reactFiber$.return;
+      if (bibleInstance && bibleInstance.stateNode && bibleInstance.stateNode.resetToInitialState) {
+        bibleInstance.stateNode.resetToInitialState();
+      }
+    }
+  };
+
   return (
     <Flex h="100vh">
       {/* Sidebar - Only shown on desktop */}
       {showSidebar && (
         <Box position="fixed" h="100vh" zIndex={1}>
-          <Sidebar />
+          <Sidebar onBibleClick={handleBibleReset} />
         </Box>
       )}
 

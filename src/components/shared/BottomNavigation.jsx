@@ -1,10 +1,18 @@
 import { HStack, IconButton, useColorModeValue } from '@chakra-ui/react';
 import { FaHome, FaCalendarAlt, FaBook, FaHandHoldingHeart } from 'react-icons/fa';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
-const BottomNavigation = () => {
+const BottomNavigation = ({ onBibleClick }) => {
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const navigate = useNavigate();
+
+  const handleBibleClick = () => {
+    if (onBibleClick) {
+      onBibleClick(); // Chama a função para resetar o estado
+    }
+    navigate('/bible'); // Navega para a página da Bíblia
+  };
 
   return (
     <HStack
@@ -23,8 +31,13 @@ const BottomNavigation = () => {
     >
       <IconButton as={RouterLink} to="/" aria-label="Início" icon={<FaHome />} variant="ghost" />
       <IconButton as={RouterLink} to="/events" aria-label="Eventos" icon={<FaCalendarAlt />} variant="ghost" />
-      <IconButton as={RouterLink} to="/bible" aria-label="Bíblia" icon={<FaBook />} variant="ghost" />
-      <IconButton as={RouterLink} to="/donate" aria-label="Doações" icon={<FaHandHoldingHeart />} variant="ghost" />
+      <IconButton
+        aria-label="Bíblia"
+        icon={<FaBook />}
+        variant="ghost"
+        onClick={handleBibleClick} // Adiciona o manipulador de clique
+      />
+      <IconButton as={RouterLink} to="/services" aria-label="Doações" icon={<FaHandHoldingHeart />} variant="ghost" />
     </HStack>
   );
 };
