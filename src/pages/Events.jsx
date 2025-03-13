@@ -28,7 +28,7 @@ import {
   FormControl,
   FormLabel,
   Textarea,
-  useToast
+  useToast,
 } from '@chakra-ui/react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import format from 'date-fns/format';
@@ -38,7 +38,7 @@ import getDay from 'date-fns/getDay';
 import ptBR from 'date-fns/locale/pt-BR';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useState, useEffect } from 'react';
-import { FaCalendarPlus, FaSearch, FaShare, FaCheck } from 'react-icons/fa';
+import { FaCalendarPlus, FaSearch, FaShare, FaCheck, FaPlus } from 'react-icons/fa';
 import { useEvents } from '../contexts/EventsContext';
 import eventsData from '../mocks/events.json';
 import BottomNavigation from '../components/shared/BottomNavigation';
@@ -65,12 +65,19 @@ const Events = () => {
 
   const { events, setEvents } = useEvents();
   const [filteredEvents, setFilteredEvents] = useState(eventsData.events);
+  const [bibleData, setBibleData] = useState({
+    books: [],
+    chapters: [],
+    verses: [],
+  });
   const [newEvent, setNewEvent] = useState({
-    title: '',
     category: 'Culto',
     date: '',
     time: '',
-    description: '',
+    verses: [],
+    selectedBook: '',
+    selectedChapter: '',
+    selectedVerse: '',
   });
   const [categoryFilter, setCategoryFilter] = useState('all');
 
@@ -80,6 +87,78 @@ const Events = () => {
     }
     setFilteredEvents(events.length > 0 ? events : eventsData.events);
   }, [events, setEvents]);
+
+  useEffect(() => {
+    // Load Bible data when component mounts
+    const loadBibleData = async () => {
+      try {
+        const response = await import('../mocks/biblev1.json');
+        const books = response.biblia.livros.map((book) => ({
+          id: book.id,
+          name: book.nome,
+        }));
+        setBibleData((prev) => ({ ...prev, books }));
+      } catch (error) {
+        console.error('Error loading Bible data:', error);
+      }
+    };
+    loadBibleData();
+  }, []);
+
+  const handleBookChange = async (bookId) => {
+    try {
+      const response = await import('../mocks/biblev1.json');
+      const selectedBook = response.biblia.livros.find((book) => book.id === bookId);
+      if (selectedBook) {
+        const chapters = selectedBook.capitulos.map((cap) => cap.numero);
+        setBibleData((prev) => ({ ...prev, chapters, verses: [] }));
+        setNewEvent((prev) => ({ ...prev, selectedBook: bookId, selectedChapter: '', selectedVerse: '' }));
+      }
+    } catch (error) {
+      console.error('Error loading chapters:', error);
+    }
+  };
+
+  const handleChapterChange = async (chapter) => {
+    try {
+      const response = await import('../mocks/biblev1.json');
+      const selectedBook = response.biblia.livros.find((book) => book.id === newEvent.selectedBook);
+      if (selectedBook) {
+        const selectedChapter = selectedBook.capitulos.find((cap) => cap.numero === parseInt(chapter));
+        if (selectedChapter) {
+          const verses = selectedChapter.versiculos.map((verse) => verse.numero);
+          setBibleData((prev) => ({ ...prev, verses }));
+          setNewEvent((prev) => ({ ...prev, selectedChapter: chapter, selectedVerse: '' }));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading verses:', error);
+    }
+  };
+
+  const handleVerseChange = (verse) => {
+    setNewEvent((prev) => ({ ...prev, selectedVerse: verse }));
+  };
+
+  const handleAddVerse = () => {
+    if (newEvent.selectedBook && newEvent.selectedChapter && newEvent.selectedVerse) {
+      const bookName = bibleData.books.find((book) => book.id === newEvent.selectedBook)?.name;
+      if (bookName) {
+        const verseReference = `${bookName} ${newEvent.selectedChapter}:${newEvent.selectedVerse}`;
+        if (!newEvent.verses.includes(verseReference)) {
+          setNewEvent((prev) => ({
+            ...prev,
+            verses: [...prev.verses, verseReference],
+            selectedBook: '',
+            selectedChapter: '',
+            selectedVerse: '',
+          }));
+          // Clear chapters and verses arrays
+          setBibleData((prev) => ({ ...prev, chapters: [], verses: [] }));
+        }
+      }
+    }
+  };
 
   const handleSearch = (searchTerm) => {
     const dataSource = events.length > 0 ? events : eventsData.events;
@@ -112,7 +191,7 @@ const Events = () => {
 
   const handleNewEvent = (e) => {
     e.preventDefault();
-    if (!newEvent.title || !newEvent.date || !newEvent.time) {
+    if (!newEvent.date || !newEvent.time) {
       toast({
         title: 'Erro',
         description: 'Por favor, preencha todos os campos obrigatórios.',
@@ -126,7 +205,7 @@ const Events = () => {
     const eventId = Date.now();
     const eventWithId = { ...newEvent, id: eventId };
     setEvents([...events, eventWithId]);
-    setNewEvent({ title: '', category: 'Culto', date: '', time: '', description: '' });
+    setNewEvent({ category: 'Culto', date: '', time: '', verses: [], selectedBook: '', selectedChapter: '', selectedVerse: '' });
     onNewEventClose();
 
     toast({
@@ -139,7 +218,7 @@ const Events = () => {
   };
 
   const handleDeleteEvent = (eventId) => {
-    setEvents(events.filter(event => event.id !== eventId));
+    setEvents(events.filter((event) => event.id !== eventId));
     setSelectedEvent(null);
     onClose();
 
@@ -151,6 +230,7 @@ const Events = () => {
       isClosable: true,
     });
   };
+
   return (
     <Box bg={bgColor} p={4}>
       <Container maxW="container.xl">
@@ -169,12 +249,18 @@ const Events = () => {
               <InputLeftElement pointerEvents="none">
                 <FaSearch color="gray.300" />
               </InputLeftElement>
-              <Input 
-                placeholder="Buscar eventos..." 
+              <Input
+                placeholder="Buscar eventos..."
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </InputGroup>
-            <Select placeholder="Categoria" maxW={{ base: 'full', md: '200px' }}>
+            <Select
+              placeholder="Categoria"
+              maxW={{ base: 'full', md: '200px' }}
+              onChange={(e) => handleCategoryFilter(e.target.value)}
+              value={categoryFilter}
+            >
+              <option value="all">Todas</option>
               <option value="Culto">Cultos</option>
               <option value="Grupo">Grupos</option>
               <option value="Conferência">Conferências</option>
@@ -220,7 +306,7 @@ const Events = () => {
               views={['month', 'week', 'day']}
               defaultView="month"
               popup
-              tooltipAccessor={(event) => event.description}
+              tooltipAccessor={(event) => event.title} // Exibe o título no tooltip
             />
           </Box>
 
@@ -236,9 +322,9 @@ const Events = () => {
                     {selectedEvent?.category}
                   </Tag>
                   <Text fontWeight="bold">
-                    {selectedEvent && format(new Date(`${selectedEvent.date}T${selectedEvent.time}`), "dd/MM/yyyy 'às' HH:mm")}
+                    {selectedEvent &&
+                      format(new Date(`${selectedEvent.date}T${selectedEvent.time}`), "dd/MM/yyyy 'às' HH:mm")}
                   </Text>
-                  <Text>{selectedEvent?.description}</Text>
                 </Stack>
               </ModalBody>
               <ModalFooter>
@@ -251,6 +337,7 @@ const Events = () => {
               </ModalFooter>
             </ModalContent>
           </Modal>
+
           {/* Events List */}
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
             {filteredEvents.map((event) => (
@@ -290,14 +377,6 @@ const Events = () => {
                 <ModalBody>
                   <Stack spacing={4}>
                     <FormControl isRequired>
-                      <FormLabel>Título</FormLabel>
-                      <Input
-                        value={newEvent.title}
-                        onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                        placeholder="Digite o título do evento"
-                      />
-                    </FormControl>
-                    <FormControl isRequired>
                       <FormLabel>Categoria</FormLabel>
                       <Select
                         value={newEvent.category}
@@ -324,23 +403,74 @@ const Events = () => {
                         onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
                       />
                     </FormControl>
-                    <FormControl>
-                      <FormLabel>Descrição</FormLabel>
-                      <Textarea
-                        value={newEvent.description}
-                        onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                        placeholder="Digite uma descrição para o evento"
-                      />
-                    </FormControl>
+                    {newEvent.category === 'Culto' && (
+                      <>
+                        <FormControl>
+                          <FormLabel>Leituras</FormLabel>
+                          <Text>{newEvent.verses.join(', ')}</Text>
+                        </FormControl>
+                        <HStack spacing={4} align="flex-end">
+                          <FormControl flex={2}>
+                            <FormLabel>Livro</FormLabel>
+                            <Select
+                              value={newEvent.selectedBook}
+                              onChange={(e) => handleBookChange(e.target.value)}
+                              placeholder="Selecione o livro"
+                            >
+                              {bibleData.books.map((book) => (
+                                <option key={book.id} value={book.id}>
+                                  {book.name}
+                                </option>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <FormControl flex={1}>
+                            <FormLabel>Capítulo</FormLabel>
+                            <Select
+                              value={newEvent.selectedChapter}
+                              onChange={(e) => handleChapterChange(e.target.value)}
+                              placeholder="Cap"
+                              isDisabled={!newEvent.selectedBook}
+                            >
+                              {bibleData.chapters.map((chapter) => (
+                                <option key={chapter} value={chapter}>
+                                  {chapter}
+                                </option>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <FormControl flex={1}>
+                            <FormLabel>Versículo</FormLabel>
+                            <Select
+                              value={newEvent.selectedVerse}
+                              onChange={(e) => handleVerseChange(e.target.value)}
+                              placeholder="Ver"
+                              isDisabled={!newEvent.selectedChapter}
+                            >
+                              {bibleData.verses.map((verse) => (
+                                <option key={verse} value={verse}>
+                                  {verse}
+                                </option>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <IconButton
+                            icon={<FaPlus />}
+                            colorScheme="blue"
+                            aria-label="Adicionar leitura"
+                            onClick={handleAddVerse}
+                            isDisabled={!newEvent.selectedVerse}
+                          />
+                        </HStack>
+                      </>
+                    )}
                   </Stack>
                 </ModalBody>
                 <ModalFooter>
                   <Button type="submit" colorScheme="blue" mr={3}>
                     Salvar
                   </Button>
-                  <Button variant="ghost" onClick={onNewEventClose}>
-                    Cancelar
-                  </Button>
+                  <Button onClick={onNewEventClose}>Cancelar</Button>
                 </ModalFooter>
               </form>
             </ModalContent>

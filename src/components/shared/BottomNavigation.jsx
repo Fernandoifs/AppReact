@@ -35,9 +35,9 @@ const BottomNavigation = ({ onBibleClick }) => {
         aria-label="Bíblia"
         icon={<FaBook />}
         variant="ghost"
-        onClick={handleBibleClick} // Adiciona o manipulador de clique
+        onClick={handleBibleClick}
       />
-      <IconButton as={RouterLink} to="/services" aria-label="Doações" icon={<FaHandHoldingHeart />} variant="ghost" />
+      <IconButton as={RouterLink} to="/services" aria-label="Serviços" icon={<FaHandHoldingHeart />} variant="ghost" />
     </HStack>
   );
 };
