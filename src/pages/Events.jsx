@@ -96,7 +96,61 @@ const Events = () => {
     };
     loadBibleData();
   }, []);
+  
+  const handleBookChange = async (bookId) => {
+    try {
+      const response = await import('../mocks/biblev1.json');
+      const selectedBook = response.biblia.livros.find((book) => book.id === bookId);
+      if (selectedBook) {
+        const chapters = selectedBook.capitulos.map((cap) => cap.numero);
+        setBibleData((prev) => ({ ...prev, chapters, verses: [] }));
+        setNewEvent((prev) => ({ ...prev, selectedBook: bookId, selectedChapter: '', selectedVerse: '' }));
+      }
+    } catch (error) {
+      console.error('Error loading chapters:', error);
+    }
+  };
 
+  const handleChapterChange = async (chapter) => {
+    try {
+      const response = await import('../mocks/biblev1.json');
+      const selectedBook = response.biblia.livros.find((book) => book.id === newEvent.selectedBook);
+      if (selectedBook) {
+        const selectedChapter = selectedBook.capitulos.find((cap) => cap.numero === parseInt(chapter));
+        if (selectedChapter) {
+          const verses = selectedChapter.versiculos.map((verse) => verse.numero);
+          setBibleData((prev) => ({ ...prev, verses }));
+          setNewEvent((prev) => ({ ...prev, selectedChapter: chapter, selectedVerse: '' }));
+        }
+      }
+    } catch (error) {
+      console.error('Error loading verses:', error);
+    }
+  };
+
+  const handleVerseChange = (verse) => {
+    setNewEvent((prev) => ({ ...prev, selectedVerse: verse }));
+  };
+
+  const handleAddVerse = () => {
+    if (newEvent.selectedBook && newEvent.selectedChapter && newEvent.selectedVerse) {
+      const bookName = bibleData.books.find((book) => book.id === newEvent.selectedBook)?.name;
+      if (bookName) {
+        const verseReference = `${bookName} ${newEvent.selectedChapter}:${newEvent.selectedVerse}`;
+        if (!newEvent.verses.includes(verseReference)) {
+          setNewEvent((prev) => ({
+            ...prev,
+            verses: [...prev.verses, verseReference],
+            selectedBook: '',
+            selectedChapter: '',
+            selectedVerse: '',
+          }));
+          // Clear chapters and verses arrays
+          setBibleData((prev) => ({ ...prev, chapters: [], verses: [] }));
+        }
+      }
+    }
+  };
   // Novo evento
   const [newEvent, setNewEvent] = useState({
     category: 'Culto',
@@ -149,11 +203,31 @@ const Events = () => {
       return;
     }
 
-    const eventWithId = { ...newEvent, id: Date.now() };
-    setEvents([...events, eventWithId]);
-    setNewEvent({ category: 'Culto', date: '', time: '', verses: [] });
+    const eventData = {
+      id: Date.now(),
+      category: newEvent.category,
+      date: newEvent.date,
+      time: newEvent.time,
+      verses: newEvent.verses,
+    };
+
+    setEvents((prevEvents) => [...prevEvents, eventData]);
+    
+    // Reset form
+    setNewEvent({
+      category: "Culto",
+      date: "",
+      time: "",
+      verses: [],
+      selectedBook: "",
+      selectedChapter: "",
+      selectedVerse: "",
+    });
+
+    // Close modal
     onNewEventClose();
 
+    // Show success message
     toast({
       title: 'Sucesso',
       description: 'Evento criado com sucesso!',
@@ -314,6 +388,76 @@ const Events = () => {
                     onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
                   />
                 </FormControl>
+                <FormControl>
+                  {newEvent.category === 'Culto' && (
+                    <>
+                    <FormLabel>Leituras</FormLabel>
+                      <HStack spacing={4} mb={2}>
+                        <Select
+                          placeholder="Livro"
+                          value={newEvent.selectedBook}
+                          onChange={(e) => handleBookChange(e.target.value)}
+                        >
+                          {bibleData.books.map((book) => (
+                            <option key={book.id} value={book.id}>
+                              {book.name}
+                            </option>
+                          ))}
+                        </Select>
+                        <Select
+                          placeholder="Capítulo"
+                          value={newEvent.selectedChapter}
+                          onChange={(e) => handleChapterChange(e.target.value)}
+                          isDisabled={!newEvent.selectedBook}
+                        >
+                          {bibleData.chapters?.map((chapter) => (
+                            <option key={chapter} value={chapter}>
+                              {chapter}
+                            </option>
+                          ))}
+                        </Select>
+                        <Select
+                          placeholder="Versículo"
+                          value={newEvent.selectedVerse}
+                          onChange={(e) => handleVerseChange(e.target.value)}
+                          isDisabled={!newEvent.selectedChapter}
+                        >
+                          {bibleData.verses?.map((verse) => (
+                            <option key={verse} value={verse}>
+                              {verse}
+                            </option>
+                          ))}
+                        </Select>
+                        <IconButton
+                          icon={<FaPlus />}
+                          onClick={handleAddVerse}
+                          isDisabled={!newEvent.selectedVerse}
+                          aria-label="Adicionar versículo"
+                        />
+                      </HStack>
+                      {newEvent.verses.length > 0 && (
+                        <VStack align="start" spacing={2}>
+                          {newEvent.verses.map((verse, index) => (
+                            <Tag
+                              key={index}
+                              size="md"
+                              variant="subtle"
+                              colorScheme="blue"
+                              onClose={() => {
+                                setNewEvent((prev) => ({
+                                  ...prev,
+                                  verses: prev.verses.filter((_, i) => i !== index),
+                                }));
+                              }}
+                            >
+                              {verse}
+                            </Tag>
+                          ))}
+                        </VStack>
+                      )}
+                    </>
+                  )}
+                </FormControl>
               </VStack>
             </ModalBody>
             <ModalFooter>
@@ -335,13 +479,24 @@ const Events = () => {
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={4} align="start">
-              <Text fontWeight="bold">Categoria: {selectedEvent?.category}</Text>
-              <Text fontWeight="bold">Data: {
-                selectedEvent?.date && selectedEvent?.time
-                ? format(new Date(`${selectedEvent.date}T${selectedEvent.time}`), 'dd/MM/yyyy HH:mm')
-                : 'Data não disponível'
-              }</Text>
-              <Text>{selectedEvent?.description}</Text>
+              <Text fontWeight="bold">Data: {selectedEvent && format(new Date(`${selectedEvent.date}T${selectedEvent.time}`), "dd/MM/yyyy 'às' HH:mm")}</Text>
+              {selectedEvent?.verses && selectedEvent.verses.length > 0 && (
+                <Box>
+                  <Text fontWeight="bold" mb={2}>Leituras Bíblicas:</Text>
+                  <VStack align="start" spacing={2}>
+                    {selectedEvent.verses.map((verse, index) => (
+                      <Tag
+                        key={index}
+                        size="md"
+                        variant="subtle"
+                        colorScheme="blue"
+                      >
+                        {verse}
+                      </Tag>
+                    ))}
+                  </VStack>
+                </Box>
+              )}
             </VStack>
           </ModalBody>
           <ModalFooter>
