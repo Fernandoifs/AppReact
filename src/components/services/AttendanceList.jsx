@@ -109,7 +109,7 @@ const AttendanceList = ({ isOpen, onClose, event }) => {
     const attendanceData = {
       eventId: event.id,
       eventDate: event.date,
-      eventTitle: event.category,
+      eventCategory: event.category,
       attendanceList: attendance,
     };
     const success = await saveAttendance(attendanceData);

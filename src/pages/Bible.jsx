@@ -21,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { FaBook, FaArrowLeft, FaSearch, FaVolumeUp } from 'react-icons/fa';
 import BottomNavigation from '../components/shared/BottomNavigation';
-import bibleData from '../mocks/bibliav2.json';
+import bibleData from '../mocks/biblev2.json';
 
 const Bible = () => {
   const bgColor = useColorModeValue('white', 'gray.800');
@@ -53,7 +53,6 @@ const Bible = () => {
         name: `Livro ${book.numero}`,
       }));
 
-      console.log('Livros carregados:', booksArray);
       setBooks(booksArray);
     } catch (err) {
       setError('Erro ao carregar os livros: ' + err.message);

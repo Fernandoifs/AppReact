@@ -27,7 +27,7 @@ import BottomNavigation from '../components/shared/BottomNavigation';
 
 const Settings = () => {
   const { colorMode, toggleColorMode } = useColorMode();
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('settings');
   const navigate = useNavigate();
   const toast = useToast();
   const bgColor = useColorModeValue('gray.50', 'gray.900');
@@ -88,7 +88,7 @@ const Settings = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
     toast({
-      title: 'Configurações salvas com sucesso!',
+      title: t('settings.settingsSaved'),
       status: 'success',
       duration: 3000,
       isClosable: true,
@@ -112,7 +112,7 @@ const Settings = () => {
                 <HStack justify="space-between">
                   <HStack spacing={3}>
                     <Icon as={FaPalette} boxSize={5} />
-                    <Text fontWeight="medium">Tema Escuro</Text>
+                    <Text fontWeight="medium">{t('settings.darkTheme')}</Text>
                   </HStack>
                   <Switch
                     isChecked={colorMode === 'dark'}
@@ -130,7 +130,7 @@ const Settings = () => {
               <VStack spacing={4} align="stretch">
                 <HStack spacing={3}>
                   <Icon as={FaLanguage} boxSize={5} />
-                  <Text fontWeight="medium">Idioma</Text>
+                  <Text fontWeight="medium">{t('settings.language')}</Text>
                 </HStack>
                 <FormControl>
                   <Select
@@ -152,11 +152,11 @@ const Settings = () => {
               <VStack spacing={4} align="stretch">
                 <HStack spacing={3}>
                   <Icon as={FaBell} boxSize={5} />
-                  <Text fontWeight="medium">Notificações</Text>
+                  <Text fontWeight="medium">{t('settings.notifications')}</Text>
                 </HStack>
                 <FormControl display="flex" alignItems="center" justifyContent="space-between">
                   <FormLabel htmlFor="email-notifications" mb={0}>
-                    Notificações por Email
+                    {t('settings.emailNotifications')}
                   </FormLabel>
                   <Switch
                     id="email-notifications"
@@ -167,7 +167,7 @@ const Settings = () => {
                 </FormControl>
                 <FormControl display="flex" alignItems="center" justifyContent="space-between">
                   <FormLabel htmlFor="push-notifications" mb={0}>
-                    Notificações Push
+                    {t('settings.pushNotifications')}
                   </FormLabel>
                   <Switch
                     id="push-notifications"

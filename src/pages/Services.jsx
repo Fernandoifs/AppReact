@@ -1,4 +1,4 @@
-import { Box, SimpleGrid, Card, CardBody, Heading, Text, Button, VStack, useColorModeValue } from '@chakra-ui/react';
+import { Box, SimpleGrid, Card, CardBody, Heading, Text, Button, VStack, useColorModeValue, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalCloseButton, ModalFooter } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useEvents } from '../contexts/EventsContext';
 import { format } from 'date-fns';
@@ -11,7 +11,8 @@ const Services = () => {
   const { events } = useEvents();
   const bgColor = useColorModeValue('facebook.bg', 'gray.800');
   const cardBg = useColorModeValue('white', 'gray.700');
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isAttendanceOpen, onOpen: onAttendanceOpen, onClose: onAttendanceClose } = useDisclosure();
+  const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure();
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   // Filter only events with category "Culto"
@@ -19,7 +20,12 @@ const Services = () => {
 
   const handleAttendanceClick = (event) => {
     setSelectedEvent(event);
-    onOpen();
+    onAttendanceOpen();
+  };
+
+  const handleCardClick = (event) => {
+    setSelectedEvent(event);
+    onDetailsOpen();
   };
 
   return (
@@ -32,6 +38,8 @@ const Services = () => {
             bg={cardBg}
             _hover={{ transform: 'translateY(-5px)' }}
             transition="all 0.2s"
+            onClick={() => handleCardClick(event)}
+            cursor="pointer"
           >
             <CardBody>
               <VStack spacing={4} align="stretch">
@@ -42,7 +50,10 @@ const Services = () => {
                 <Button 
                   colorScheme="blue" 
                   mt={4}
-                  onClick={() => handleAttendanceClick(event)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAttendanceClick(event);
+                  }}
                 >
                   Ver Lista de Presença
                 </Button>
@@ -53,10 +64,46 @@ const Services = () => {
       </SimpleGrid>
 
       <AttendanceList 
-        isOpen={isOpen} 
-        onClose={onClose} 
+        isOpen={isAttendanceOpen} 
+        onClose={onAttendanceClose} 
         event={selectedEvent}
       />
+
+      <Modal isOpen={isDetailsOpen} onClose={onDetailsClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{selectedEvent?.category}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4} align="stretch">
+              <Text>
+                <strong>Data e Hora:</strong>{' '}
+                {selectedEvent && format(new Date(`${selectedEvent.date}T${selectedEvent.time}`), "dd/MM/yyyy 'às' HH:mm")}
+              </Text>
+              {selectedEvent?.description && (
+                <Text>
+                  <strong>Descrição:</strong> {selectedEvent.description}
+                </Text>
+              )}
+              {selectedEvent?.location && (
+                <Text>
+                  <strong>Local:</strong> {selectedEvent.location}
+                </Text>
+              )}
+              {selectedEvent?.status && (
+                <Text>
+                  <strong>Status:</strong> {selectedEvent.status}
+                </Text>
+              )}
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onDetailsClose}>
+              Fechar
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <BottomNavigation />
     </Box>
   );

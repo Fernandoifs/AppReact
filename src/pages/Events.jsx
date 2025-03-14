@@ -27,7 +27,7 @@ import {
   ModalFooter,
   FormControl,
   FormLabel,
-  useToast,
+  useToast,VStack
 } from '@chakra-ui/react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import format from 'date-fns/format';
@@ -56,6 +56,7 @@ const localizer = dateFnsLocalizer({
 const Events = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isNewEventOpen, onOpen: onNewEventOpen, onClose: onNewEventClose } = useDisclosure();
+  const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure();
   const [selectedEvent, setSelectedEvent] = useState(null);
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const cardBg = useColorModeValue('white', 'gray.800');
@@ -124,7 +125,6 @@ const Events = () => {
     if (searchTerm) {
       filtered = filtered.filter(
         (event) =>
-          event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.category.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -214,15 +214,25 @@ const Events = () => {
               localizer={localizer}
               events={filteredEvents.map((event) => ({
                 ...event,
-                start: new Date(event.date + ' ' + event.time + ' GMT-3'),
-                end: new Date(event.date + ' ' + event.time + ' GMT-3'),
-                title: event.title,
+                start: event.date && event.time ? new Date(`${event.date}T${event.time}`) : new Date(),
+                end: event.date && event.time ? new Date(`${event.date}T${event.time}`) : new Date(),
+                title: event.category,
               }))}
               startAccessor="start"
               endAccessor="end"
               style={{ height: '100%', color: dayTextColor }}
               views={['month', 'week', 'day']}
               defaultView="month"
+              onSelectSlot={(slotInfo) => {
+                const selectedDate = format(slotInfo.start, 'yyyy-MM-dd');
+                setNewEvent(prev => ({
+                  ...prev,
+                  date: selectedDate,
+                  time: '19:00'
+                }));
+                onNewEventOpen();
+              }}
+              selectable={true}
               messages={{
                 next: "Próximo",
                 previous: "Anterior",
@@ -236,19 +246,7 @@ const Events = () => {
                 event: "Evento",
                 allDay: "Dia inteiro",
                 noEventsInRange: "Não há eventos neste período.",
-                showMore: (total) => `+${total} mais`,
-                month_january: "Janeiro",
-                month_february: "Fevereiro",
-                month_march: "Março",
-                month_april: "Abril",
-                month_may: "Maio",
-                month_june: "Junho",
-                month_july: "Julho",
-                month_august: "Agosto",
-                month_september: "Setembro",
-                month_october: "Outubro",
-                month_november: "Novembro",
-                month_december: "Dezembro"
+                showMore: (total) => `+${total} mais`
               }}
               culture="pt-BR"
               popup
@@ -257,13 +255,16 @@ const Events = () => {
 
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
             {filteredEvents.map((event) => (
-              <Card key={event.id} bg={cardBg} cursor="pointer" _hover={{ transform: 'translateY(-2px)' }} transition="all 0.2s">
+              <Card key={event.id} bg={cardBg} cursor="pointer" _hover={{ transform: 'translateY(-2px)' }} transition="all 0.2s" onClick={() => {
+                setSelectedEvent(event);
+                onDetailsOpen();
+              }}>
                 <CardBody>
                   <Stack spacing={3}>
                     <Box w="fit-content">
                       <Tag size="sm" colorScheme="blue">{event.category}</Tag>
                     </Box>
-                    <Heading size="md">{event.title}</Heading>
+                    <Heading size="md">{event.category}</Heading>
                     <Text color="gray.500">{format(new Date(event.date + ' ' + event.time), "dd/MM/yyyy 'às' HH:mm")}</Text>
                   </Stack>
                 </CardBody>
@@ -273,6 +274,83 @@ const Events = () => {
         </Stack>
       </Container>
       <BottomNavigation />
+
+      <Modal isOpen={isNewEventOpen} onClose={onNewEventClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Novo Evento</ModalHeader>
+          <ModalCloseButton />
+          <form onSubmit={handleNewEvent}>
+            <ModalBody>
+              <VStack spacing={4}>
+
+
+                <FormControl isRequired>
+                  <FormLabel>Categoria</FormLabel>
+                  <Select
+                    value={newEvent.category}
+                    onChange={(e) => setNewEvent({ ...newEvent, category: e.target.value })}
+                  >
+                    <option value="Culto">Culto</option>
+                    <option value="Grupo">Grupo</option>
+                    <option value="Conferência">Conferência</option>
+                  </Select>
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel>Data</FormLabel>
+                  <Input
+                    type="date"
+                    value={newEvent.date}
+                    onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel>Hora</FormLabel>
+                  <Input
+                    type="time"
+                    value={newEvent.time}
+                    onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
+                  />
+                </FormControl>
+              </VStack>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="ghost" mr={3} onClick={onNewEventClose}>
+                Cancelar
+              </Button>
+              <Button colorScheme="blue" type="submit">
+                Salvar
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={isDetailsOpen} onClose={onDetailsClose} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{selectedEvent?.category}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <VStack spacing={4} align="start">
+              <Text fontWeight="bold">Categoria: {selectedEvent?.category}</Text>
+              <Text fontWeight="bold">Data: {
+                selectedEvent?.date && selectedEvent?.time
+                ? format(new Date(`${selectedEvent.date}T${selectedEvent.time}`), 'dd/MM/yyyy HH:mm')
+                : 'Data não disponível'
+              }</Text>
+              <Text>{selectedEvent?.description}</Text>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onDetailsClose}>
+              Fechar
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
