@@ -21,7 +21,7 @@ const Sidebar = ({ onBibleClick }) => {
     if (onBibleClick) {
       onBibleClick(); // Chama a função para resetar o estado
     }
-    navigate('/bible'); // Navega para a página da Bíblia
+    navigate('/biblev1'); // Navega para a página da Bíblia
   };
 
   const menuItems = [
@@ -29,7 +29,8 @@ const Sidebar = ({ onBibleClick }) => {
     { icon: <FaUsers size="20" />, label: 'Membros', path: '/members', onClick: null },
     { icon: <FaCalendarAlt size="20" />, label: 'Eventos', path: '/events', onClick: null },
     { icon: <FaHandHoldingHeart size="20" />, label: 'Serviços', path: '/services', onClick: null },
-    { icon: <FaBook size="20" />, label: 'Bíblia', path: '/bible', onClick: handleBibleClick }, // Adiciona o manipulador de clique
+    { icon: <FaBook size="20" />, label: 'Bíblia', path: '/bible', onClick: handleBibleClick },
+    { icon: <FaBook size="20" />, label: 'Bíblia1', path: '/biblev1', onClick: handleBibleClick },
     { icon: <FaCog size="20" />, label: 'Configurações', path: '/settings', onClick: null },
   ];
 

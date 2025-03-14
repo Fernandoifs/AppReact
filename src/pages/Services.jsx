@@ -95,6 +95,25 @@ const Services = () => {
                   <strong>Status:</strong> {selectedEvent.status}
                 </Text>
               )}
+              {selectedEvent?.verses && selectedEvent.verses.length > 0 && (
+                <Text>
+                  <strong>Leitura Bíblica:</strong>
+                  <VStack align="start" spacing={2} mt={2}>
+                    {selectedEvent.verses.map((verse, index) => (
+                      <Text
+                        key={index}
+                        as={RouterLink}
+                        to={`/biblev1`}
+                        color="blue.500"
+                        _hover={{ textDecoration: 'underline' }}
+                        cursor="pointer"
+                      >
+                        {verse}
+                      </Text>
+                    ))}
+                  </VStack>
+                </Text>
+              )}
             </VStack>
           </ModalBody>
           <ModalFooter>

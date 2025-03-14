@@ -9,6 +9,7 @@ import Events from './pages/Events'
 import Services from './pages/Services'
 import Attendance from './pages/Attendance'
 import Bible from './pages/Bible'
+import Biblev1 from './pages/Biblev1'
 import Settings from './pages/Settings'
 import { EventsProvider } from './contexts/EventsContext';
 import { SidebarProvider } from './contexts/SidebarContext'
@@ -35,6 +36,7 @@ function App() {
                       <Route path="/finance" element={<Finance />} />
                       <Route path="/services/:serviceId/attendance" element={<Attendance />} />
                       <Route path="/bible" element={<Bible />} />
+                      <Route path="/biblev1" element={<Biblev1 />} />
                       <Route path="/settings" element={<Settings />} />
                     </Routes>
                   </MainLayout>

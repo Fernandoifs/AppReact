@@ -42,8 +42,21 @@ import { useEvents } from '../contexts/EventsContext';
 import eventsData from '../mocks/events.json';
 import BottomNavigation from '../components/shared/BottomNavigation';
 import { debounce } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 
 const locales = { 'pt-BR': ptBR };
+
+const extractBibleReference = (verseRef) => {
+  const match = verseRef.match(/(.+)\s(\d+):(\d+)/);
+  if (match) {
+    return {
+      bookName: match[1],
+      chapter: match[2],
+      verse: match[3]
+    };
+  }
+  return null;
+};
 
 const localizer = dateFnsLocalizer({
   format,
@@ -54,6 +67,7 @@ const localizer = dateFnsLocalizer({
 });
 
 const Events = () => {
+  const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isNewEventOpen, onOpen: onNewEventOpen, onClose: onNewEventClose } = useDisclosure();
   const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onClose: onDetailsClose } = useDisclosure();
@@ -484,16 +498,35 @@ const Events = () => {
                 <Box>
                   <Text fontWeight="bold" mb={2}>Leituras Bíblicas:</Text>
                   <VStack align="start" spacing={2}>
-                    {selectedEvent.verses.map((verse, index) => (
-                      <Tag
-                        key={index}
-                        size="md"
-                        variant="subtle"
-                        colorScheme="blue"
-                      >
-                        {verse}
-                      </Tag>
-                    ))}
+                    {selectedEvent.verses.map((verse, index) => {
+                      const bibleRef = extractBibleReference(verse);
+                      return (
+                        <Tag
+                          key={index}
+                          size="md"
+                          variant="subtle"
+                          colorScheme="blue"
+                          cursor="pointer"
+                          onClick={() => {
+                            if (bibleRef) {
+                              const bookData = bibleData.books.find(b => b.name === bibleRef.bookName);
+                              if (bookData) {
+                                navigate('/biblev1', {
+                                  state: {
+                                    bookId: bookData.id,
+                                    chapter: bibleRef.chapter,
+                                    verse: bibleRef.verse
+                                  }
+                                });
+                              }
+                            }
+                          }}
+                          _hover={{ transform: 'scale(1.05)' }}
+                        >
+                          {verse}
+                        </Tag>
+                      );
+                    })}
                   </VStack>
                 </Box>
               )}
