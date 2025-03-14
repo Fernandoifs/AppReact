@@ -30,7 +30,7 @@ const MainLayout = ({ children }) => {
       {/* Main Content */}
       <Box
         flex={1}
-        p={4}
+        p={0}
         bg="facebook.bg"
         ml={showSidebar ? (isCollapsed ? "60px" : "280px") : 0}
         transition="margin-left 0.3s"

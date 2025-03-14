@@ -15,24 +15,24 @@ const theme = extendTheme({
       800: '#062C73',
       900: '#041B4D',
     },
-    facebook: {
-      bg: '#F0F2F5',
-      text: '#050505',
-      secondaryText: '#65676B',
-      hover: '#E4E6E9',
-      active: '#BCC0C4',
+    primary: {
+      bg: '#F7FAFC',
+      text: '#2D3748',
+      secondaryText: '#718096',
+      hover: '#E2E8F0',
+      active: '#CBD5E0',
     }
   },
   fonts: {
-    heading: '"-apple-system", "system-ui", BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    body: '"-apple-system", "system-ui", BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    heading: '"Poppins", sans-serif',
+    body: '"Poppins", sans-serif',
   },
   components: {
     Button: {
       baseStyle: {
-        fontWeight: '600',
-        borderRadius: '6px',
-        transition: 'all 0.2s',
+        fontWeight: 'bold',
+        borderRadius: '12px',
+        transition: 'all 0.2s ease-in-out',
       },
       variants: {
         solid: (props) => ({
@@ -40,14 +40,14 @@ const theme = extendTheme({
           color: 'white',
           _hover: {
             bg: mode('brand.500', 'brand.400')(props),
-            transform: 'translateY(-1px)',
+            transform: 'scale(1.05)',
           },
         }),
         outline: (props) => ({
           borderColor: mode('brand.400', 'brand.300')(props),
           color: mode('brand.400', 'brand.300')(props),
           _hover: {
-            bg: mode('facebook.hover', 'whiteAlpha.200')(props),
+            bg: mode('primary.hover', 'whiteAlpha.200')(props),
           },
         }),
       },
@@ -56,27 +56,27 @@ const theme = extendTheme({
       baseStyle: (props) => ({
         container: {
           bg: mode('white', 'gray.800')(props),
-          borderRadius: '8px',
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
-          transition: 'all 0.2s',
+          borderRadius: '12px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.3s ease-in-out',
           _hover: {
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
           },
         },
       }),
     },
     Heading: {
       baseStyle: {
-        fontFamily: '"-apple-system", "system-ui", BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-        fontWeight: '600',
+        fontFamily: '"Poppins", sans-serif',
+        fontWeight: '700',
       },
     },
   },
   styles: {
     global: (props) => ({
       body: {
-        bg: mode('facebook.bg', 'gray.900')(props),
-        color: mode('facebook.text', 'whiteAlpha.900')(props),
+        bg: mode('primary.bg', 'gray.900')(props),
+        color: mode('primary.text', 'whiteAlpha.900')(props),
       },
     }),
   },

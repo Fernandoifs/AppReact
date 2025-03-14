@@ -12,7 +12,9 @@ import { useSidebar } from '../contexts/SidebarContext';
 
 const Sidebar = ({ onBibleClick }) => {
   const { isCollapsed, setIsCollapsed } = useSidebar();
-  const bgColor = 'white';
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.700', 'whiteAlpha.900');
+  const hoverBg = useColorModeValue('gray.100', 'gray.700');
   const navigate = useNavigate();
 
   const handleBibleClick = () => {
@@ -39,6 +41,8 @@ const Sidebar = ({ onBibleClick }) => {
       h="100vh"
       bg={bgColor}
       boxShadow="lg"
+      borderRight="1px solid"
+      borderColor={useColorModeValue('gray.200', 'gray.700')}
       width={isCollapsed ? "60px" : "280px"}
       transition="all 0.3s"
       zIndex={1000}
@@ -69,8 +73,8 @@ const Sidebar = ({ onBibleClick }) => {
               display="flex"
               alignItems="center"
               borderRadius="md"
-              _hover={{ bg: 'gray.100' }}
-              color="gray.700"
+              _hover={{ bg: hoverBg }}
+              color={textColor}
               onClick={item.onClick} // Adiciona o manipulador de clique
             >
               {item.icon}

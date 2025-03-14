@@ -13,7 +13,7 @@ import {
   HStack,
   Flex,
   Badge,
-  Avatar,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { FaChurch, FaCalendarAlt, FaPray, FaHandHoldingHeart, FaHome, FaBook } from 'react-icons/fa';
 import { useEvents } from '../contexts/EventsContext';
@@ -21,42 +21,45 @@ import { format } from 'date-fns';
 import { Link as RouterLink } from 'react-router-dom';
 import cultoImage from '../assets/culto.png';
 
-const BottomNavigation = () => (
-  <HStack
-    justify="space-around"
-    bg="white"
-    borderTop="1px solid"
-    borderColor="gray.200"
-    py={2}
-    position="fixed"
-    bottom={0}
-    left={0}
-    right={0}
-    zIndex={10}
-    boxShadow="0 -2px 10px rgba(0,0,0,0.1)"
-    display={{ base: 'flex', md: 'none' }}
-  >
-    <IconButton as={RouterLink} to="/" aria-label="Início" icon={<FaHome />} variant="ghost" />
-    <IconButton as={RouterLink} to="/events" aria-label="Eventos" icon={<FaCalendarAlt />} variant="ghost" />
-    <IconButton as={RouterLink} to="/bible" aria-label="Bíblia" icon={<FaBook />} variant="ghost" />
-    <IconButton as={RouterLink} to="/donate" aria-label="Doações" icon={<FaHandHoldingHeart />} variant="ghost" />
-  </HStack>
-);
+const BottomNavigation = () => {
+  const navBg = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+
+  return (
+    <HStack
+      justify="space-around"
+      bg={navBg}
+      borderTop="1px solid"
+      borderColor={borderColor}
+      py={2}
+      position="fixed"
+      bottom={0}
+      left={0}
+      right={0}
+      zIndex={10}
+      boxShadow="0 -2px 10px rgba(0,0,0,0.1)"
+      display={{ base: 'flex', md: 'none' }}
+    >
+      <IconButton as={RouterLink} to="/" aria-label="Início" icon={<FaHome />} variant="ghost" />
+      <IconButton as={RouterLink} to="/events" aria-label="Eventos" icon={<FaCalendarAlt />} variant="ghost" />
+      <IconButton as={RouterLink} to="/bible" aria-label="Bíblia" icon={<FaBook />} variant="ghost" />
+      <IconButton as={RouterLink} to="/donate" aria-label="Doações" icon={<FaHandHoldingHeart />} variant="ghost" />
+    </HStack>
+  );
+};
 
 const Home = () => {
   const { events = [] } = useEvents();
-  const bgColor = 'gray.50';
-  const cardBg = 'white';
+  const bgColor = useColorModeValue('gray.100', 'gray.900');
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const textColor = useColorModeValue('gray.700', 'whiteAlpha.900');
+  const bannerBg = useColorModeValue('blue.600', 'blue.800');
 
-  const newsEvents = events
-    ? events
-        .slice(0, 3)
-        .map((event) => ({
-          title: event.category,
-          description: format(new Date(`${event.date}T${event.time}`), "dd/MM/yyyy 'às' HH:mm"),
-          image: cultoImage,
-        }))
-    : [];
+  const newsEvents = events.slice(0, 3).map((event) => ({
+    title: event.title,
+    description: format(new Date(`${event.date}T${event.time}`), "dd/MM/yyyy 'às' HH:mm"),
+    image: cultoImage,
+  }));
 
   const quickAccessItems = [
     { icon: <FaChurch size="2.5em" />, title: 'Visitas Pastorais', path: '/visits', color: 'blue.500' },
@@ -67,57 +70,19 @@ const Home = () => {
 
   return (
     <Box bg={bgColor} minH="100vh">
-      {/* Banner Aprimorado */}
-      <Box
-        bg="blue.600"
-        color="white"
-        py={12}
-        px={4}
-        textAlign="center"
-        position="relative"
-        overflow="hidden"
-        _before={{
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          bg: 'blue.700',
-          opacity: 0.3,
-          transform: 'skewY(-6deg)',
-          transformOrigin: 'top left',
-        }}
-      >
-        <Container maxW="container.xl" position="relative">
+      {/* Banner Principal */}
+      <Box bg={bannerBg} color="white" py={12} px={4} textAlign="center">
+        <Container maxW="container.xl">
           <VStack spacing={4}>
-            <Heading
-              size="2xl"
-              fontFamily="'Playfair Display', serif"
-              fontWeight="bold"
-              textShadow="2px 2px 4px rgba(0,0,0,0.3)"
-            >
-              Igreja Cristã
-            </Heading>
-            <Text
-              fontSize="xl"
-              fontStyle="italic"
-              maxW="container.md"
-              lineHeight="tall"
-              textShadow="1px 1px 2px rgba(0,0,0,0.2)"
-            >
-              "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna."
-            </Text>
-            <Text fontSize="lg" fontWeight="medium">
-              João 3:16
-            </Text>
+            <Heading size="2xl" fontWeight="bold">Igreja Cristã</Heading>
+            <Text fontSize="xl" maxW="2xl">Bem-vindo à nossa comunidade de fé, esperança e amor.</Text>
           </VStack>
         </Container>
       </Box>
 
       {/* Conteúdo Principal */}
-      <Container maxW="container.xl" py={12} pb={20}>
-        {/* Cartões de Acesso Rápido */}
+      <Container maxW="container.xl" py={8}>
+        {/* Acesso Rápido */}
         <SimpleGrid columns={{ base: 2, md: 4 }} spacing={6} mb={12}>
           {quickAccessItems.map((item, index) => (
             <Card
@@ -125,100 +90,49 @@ const Home = () => {
               as={RouterLink}
               to={item.path}
               bg={cardBg}
-              _hover={{
-                transform: 'translateY(-8px)',
-                boxShadow: 'xl',
-                textDecoration: 'none',
-              }}
-              transition="all 0.3s"
-              overflow="hidden"
-              borderRadius="xl"
+              _hover={{ transform: 'scale(1.05)', boxShadow: 'lg' }}
+              transition="all 0.2s"
+              p={4}
+              borderRadius="md"
+              textAlign="center"
             >
               <CardBody>
-                <VStack spacing={4} textAlign="center">
-                  <Flex
-                    align="center"
-                    justify="center"
-                    w={16}
-                    h={16}
-                    bg={item.color}
-                    color="white"
-                    borderRadius="full"
-                    mb={2}
-                  >
-                    {item.icon}
-                  </Flex>
-                  <Heading size="md" color="gray.700">
+                <VStack spacing={3}>
+                  <Box color={item.color}>{item.icon}</Box>
+                  <Text fontWeight="medium" textAlign="center" color={textColor}>
                     {item.title}
-                  </Heading>
+                  </Text>
                 </VStack>
               </CardBody>
             </Card>
           ))}
         </SimpleGrid>
 
-        {/* Seção de Eventos */}
-        <Box mb={8}>
-          <Flex justify="space-between" align="center" mb={6}>
-            <Heading size="lg">Próximos Eventos</Heading>
-            <Badge colorScheme="blue" fontSize="md" p={2} borderRadius="full">
-              {newsEvents.length} Eventos
-            </Badge>
-          </Flex>
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-            {newsEvents.map((item, index) => (
-              <Card
-                key={index}
-                bg={cardBg}
-                as={RouterLink}
-                to="/events"
-                _hover={{
-                  transform: 'translateY(-4px)',
-                  boxShadow: 'lg',
-                  textDecoration: 'none',
-                }}
-                transition="all 0.2s"
-                overflow="hidden"
-                borderRadius="xl"
-              >
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  height="200px"
-                  objectFit="cover"
-                  transition="transform 0.3s"
-                  _hover={{ transform: 'scale(1.05)' }}
-                />
-                <CardBody>
-                  <Stack spacing={3}>
-                    <Heading size="md" color="gray.700">
-                      {item.title}
-                    </Heading>
-                    <Text fontSize="sm" color="gray.600">
-                      {item.description}
-                    </Text>
-                  </Stack>
-                </CardBody>
-              </Card>
-            ))}
-          </SimpleGrid>
-          {newsEvents.length === 0 && (
-            <Box
-              textAlign="center"
-              p={8}
-              bg="gray.50"
-              borderRadius="xl"
-              border="1px dashed"
-              borderColor="gray.200"
-            >
-              <Text fontSize="lg" color="gray.500">
-                Nenhum evento programado
-              </Text>
-            </Box>
+        {/* Próximos Eventos */}
+        <Box mb={12}>
+          <Heading size="lg" mb={6} color={textColor}>Próximos Eventos</Heading>
+          {newsEvents.length > 0 ? (
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+              {newsEvents.map((event, index) => (
+                <Card key={index} bg={cardBg} borderRadius="md" overflow="hidden" boxShadow="md" transition="all 0.2s">
+                  <Image src={event.image} alt={event.title} objectFit="cover" height="180px" width="100%" />
+                  <CardBody>
+                    <VStack align="start" spacing={2}>
+                      <Badge colorScheme="blue">Evento</Badge>
+                      <Heading size="md" color={textColor}>{event.title}</Heading>
+                      <Text color="gray.500">{event.description}</Text>
+                    </VStack>
+                  </CardBody>
+                </Card>
+              ))}
+            </SimpleGrid>
+          ) : (
+            <Text color={textColor}>Nenhum evento próximo.</Text>
           )}
         </Box>
       </Container>
 
+      {/* Navegação Inferior */}
       <BottomNavigation />
     </Box>
   );

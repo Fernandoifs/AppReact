@@ -1,9 +1,11 @@
 import { createContext, useContext, useState } from 'react';
+import eventsData from '../mocks/events.json';
 
 const EventsContext = createContext();
 
 export const EventsProvider = ({ children }) => {
-  const [events, setEvents] = useState([]);
+  // Initialize events directly with mock data
+  const [events, setEvents] = useState(eventsData.events);
 
   const addEvent = (newEvent) => {
     setEvents([...events, newEvent]);

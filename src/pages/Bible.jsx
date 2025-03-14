@@ -17,15 +17,16 @@ import {
   InputGroup,
   InputLeftElement,
   IconButton,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { FaBook, FaArrowLeft, FaSearch, FaVolumeUp } from 'react-icons/fa';
 import BottomNavigation from '../components/shared/BottomNavigation';
-import bibleData from '../mocks/biblev1.json';
+import bibleData from '../mocks/biblev2.xml';
 
 const Bible = () => {
-  const bgColor = 'black';
-  const cardBg = 'gray.800';
-  const textColor = 'white';
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const cardBg = useColorModeValue('white', 'gray.700');
+  const textColor = useColorModeValue('gray.800', 'white');
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [view, setView] = useState('books');
@@ -33,11 +34,81 @@ const Bible = () => {
   const [error, setError] = useState(null);
   const [selectedBible, setSelectedBible] = useState(bibleData.biblia?.id || 'nlth');
   const [books, setBooks] = useState(() => {
-    return bibleData.biblia?.livros?.map(book => ({
-      id: book.id,
-      name: book.nome
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(bibleData, 'text/xml');
+    const testament = xmlDoc.querySelector('testament');
+    const bookElements = testament?.getElementsByTagName('book') || [];
+    
+    return Array.from(bookElements).map((book, index) => ({
+      id: book.getAttribute('number'),
+      name: `Livro ${index + 1}`
     })) || [];
   });
+
+  const handleBookSelect = (book) => {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(bibleData, 'text/xml');
+    const testament = xmlDoc.querySelector('testament');
+    const bookElement = Array.from(testament?.getElementsByTagName('book') || []).find(
+      (b) => b.getAttribute('number') === book.id
+    );
+
+    if (!bookElement) {
+      setError('Livro não encontrado.');
+      return;
+    }
+
+    const chapterElements = bookElement.getElementsByTagName('chapter');
+    if (!chapterElements.length) {
+      setError('Este livro ainda não está disponível.');
+      return;
+    }
+
+    const bookChapters = Array.from(chapterElements).map((chapter) => ({
+      id: `${book.id}${chapter.getAttribute('number')}`,
+      number: parseInt(chapter.getAttribute('number'))
+    }));
+
+    setChapters(bookChapters);
+    setSelectedBook(book);
+    setView('chapters');
+    setError(null);
+  };
+
+  const handleChapterSelect = (chapter) => {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(bibleData, 'text/xml');
+    const testament = xmlDoc.querySelector('testament');
+    const bookElement = Array.from(testament?.getElementsByTagName('book') || []).find(
+      (b) => b.getAttribute('number') === selectedBook.id
+    );
+
+    if (!bookElement) {
+      setError('Livro não encontrado.');
+      return;
+    }
+
+    const chapterElement = Array.from(bookElement.getElementsByTagName('chapter')).find(
+      (c) => parseInt(c.getAttribute('number')) === chapter.number
+    );
+
+    if (!chapterElement) {
+      setError('Este capítulo ainda não está disponível.');
+      return;
+    }
+
+    const verseElements = chapterElement.getElementsByTagName('verse');
+    const chapterVerses = Array.from(verseElements).map((verse) => ({
+      id: `${selectedBook.id}${chapter.number}${verse.getAttribute('number')}`,
+      number: parseInt(verse.getAttribute('number')),
+      content: verse.textContent
+    }));
+
+    setVerses(chapterVerses);
+    setSelectedChapter(chapter.number);
+    setView('verses');
+    setError(null);
+  };
   const [chapters, setChapters] = useState([]);
   const [verses, setVerses] = useState([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -215,7 +286,7 @@ const Bible = () => {
           onClick={handleTextToSpeech}
         />
       </Box>
-      <VStack spacing={4} align="stretch" bg="black" minH="100vh">
+      <VStack spacing={4} align="stretch" bg={bgColor} minH="100vh">
         <Box p={4}>
           <Heading size="lg" color={textColor} mb={6}>
            {selectedBook?.name}
@@ -232,11 +303,11 @@ const Bible = () => {
                 mb={4}
                 onClick={() => handleVerseSelect(verse)}
                 cursor="pointer"
-                _hover={{ bg: 'gray.700' }}
+                _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}
                 p={2}
                 borderRadius="md"
               >
-                <Text as="sup" fontSize="sm" mr={2} color="gray.400">
+                <Text as="sup" fontSize="sm" mr={2} color={useColorModeValue('gray.600', 'gray.400')}>
                   {verse.number}
                 </Text>
                 {verse.content}

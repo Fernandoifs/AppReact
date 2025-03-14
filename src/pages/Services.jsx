@@ -9,8 +9,8 @@ import BottomNavigation from '../components/shared/BottomNavigation';
 
 const Services = () => {
   const { events } = useEvents();
-  const bgColor = 'white';
-  const cardBg = 'white';
+  const bgColor = useColorModeValue('facebook.bg', 'gray.800');
+  const cardBg = useColorModeValue('white', 'gray.700');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedEvent, setSelectedEvent] = useState(null);
 
