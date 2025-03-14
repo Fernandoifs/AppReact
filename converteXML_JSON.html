@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor XML para JSON</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        textarea { width: 100%; height: 200px; }
+        .output { white-space: pre-wrap; background: #f4f4f4; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h2>Conversor de XML para JSON</h2>
+    <input type="file" id="fileInput" accept=".xml" multiple>
+    <button onclick="converterXML()">Converter</button>
+    <button onclick="baixarJSON()">Baixar JSON</button>
+    <h3>Resultado JSON:</h3>
+    <div id="output" class="output"></div>
+
+    <script>
+        let jsonResult = {
+            biblia: {
+                traducao: "",
+                link: "",
+                testamentos: []
+            }
+        };
+
+        function converterXML() {
+            const fileInput = document.getElementById("fileInput");
+            const output = document.getElementById("output");
+
+            if (fileInput.files.length === 0) {
+                alert("Por favor, selecione pelo menos um arquivo XML.");
+                return;
+            }
+
+            // Limpa o resultado anterior
+            jsonResult.biblia.testamentos = [];
+
+            // Processa cada arquivo selecionado
+            Array.from(fileInput.files).forEach((file) => {
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(event.target.result, "text/xml");
+
+                    // Pega os dados principais (tradução e link)
+                    const biblia = xmlDoc.documentElement;
+                    jsonResult.biblia.traducao = biblia.getAttribute("translation");
+                    jsonResult.biblia.link = biblia.getAttribute("link");
+
+                    // Processa os testamentos
+                    const testamentos = xmlDoc.getElementsByTagName("testament");
+                    for (let testament of testamentos) {
+                        let testamentJSON = {
+                            nome: testament.getAttribute("name"),
+                            livros: []
+                        };
+
+                        // Processa os livros dentro do testamento
+                        const livros = testament.getElementsByTagName("book");
+                        for (let livro of livros) {
+                            let livroJSON = {
+                                numero: parseInt(livro.getAttribute("number")),
+                                capitulos: []
+                            };
+
+                            // Processa os capítulos dentro do livro
+                            const capitulos = livro.getElementsByTagName("chapter");
+                            for (let cap of capitulos) {
+                                let capJSON = {
+                                    numero: parseInt(cap.getAttribute("number")),
+                                    versiculos: []
+                                };
+
+                                // Processa os versículos dentro do capítulo
+                                const versiculos = cap.getElementsByTagName("verse");
+                                for (let versiculo of versiculos) {
+                                    capJSON.versiculos.push({
+                                        numero: parseInt(versiculo.getAttribute("number")),
+                                        texto: versiculo.textContent.trim()
+                                    });
+                                }
+
+                                livroJSON.capitulos.push(capJSON);
+                            }
+
+                            testamentJSON.livros.push(livroJSON);
+                        }
+
+                        jsonResult.biblia.testamentos.push(testamentJSON);
+                    }
+
+                    output.textContent = JSON.stringify(jsonResult, null, 4);
+                };
+
+                reader.readAsText(file);
+            });
+        }
+
+        function baixarJSON() {
+            const jsonContent = JSON.stringify(jsonResult, null, 4);
+            const blob = new Blob([jsonContent], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "biblia.json";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

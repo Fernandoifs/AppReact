@@ -57,10 +57,10 @@ const theme = extendTheme({
         container: {
           bg: mode('white', 'gray.800')(props),
           borderRadius: '12px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          boxShadow: mode('0 6px 12px rgba(0, 0, 0, 0.15)', '0 4px 6px rgba(0, 0, 0, 0.1)')(props),
           transition: 'all 0.3s ease-in-out',
           _hover: {
-            boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
+            boxShadow: mode('0 12px 24px rgba(0, 0, 0, 0.2)', '0 6px 12px rgba(0, 0, 0, 0.15)')(props),
           },
         },
       }),

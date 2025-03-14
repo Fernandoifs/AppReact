@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -21,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { FaBook, FaArrowLeft, FaSearch, FaVolumeUp } from 'react-icons/fa';
 import BottomNavigation from '../components/shared/BottomNavigation';
-import bibleData from '../mocks/biblev2.xml';
+import bibleData from '../mocks/bibliav2.json';
 
 const Bible = () => {
   const bgColor = useColorModeValue('white', 'gray.800');
@@ -32,83 +32,7 @@ const Bible = () => {
   const [view, setView] = useState('books');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedBible, setSelectedBible] = useState(bibleData.biblia?.id || 'nlth');
-  const [books, setBooks] = useState(() => {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(bibleData, 'text/xml');
-    const testament = xmlDoc.querySelector('testament');
-    const bookElements = testament?.getElementsByTagName('book') || [];
-    
-    return Array.from(bookElements).map((book, index) => ({
-      id: book.getAttribute('number'),
-      name: `Livro ${index + 1}`
-    })) || [];
-  });
-
-  const handleBookSelect = (book) => {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(bibleData, 'text/xml');
-    const testament = xmlDoc.querySelector('testament');
-    const bookElement = Array.from(testament?.getElementsByTagName('book') || []).find(
-      (b) => b.getAttribute('number') === book.id
-    );
-
-    if (!bookElement) {
-      setError('Livro não encontrado.');
-      return;
-    }
-
-    const chapterElements = bookElement.getElementsByTagName('chapter');
-    if (!chapterElements.length) {
-      setError('Este livro ainda não está disponível.');
-      return;
-    }
-
-    const bookChapters = Array.from(chapterElements).map((chapter) => ({
-      id: `${book.id}${chapter.getAttribute('number')}`,
-      number: parseInt(chapter.getAttribute('number'))
-    }));
-
-    setChapters(bookChapters);
-    setSelectedBook(book);
-    setView('chapters');
-    setError(null);
-  };
-
-  const handleChapterSelect = (chapter) => {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(bibleData, 'text/xml');
-    const testament = xmlDoc.querySelector('testament');
-    const bookElement = Array.from(testament?.getElementsByTagName('book') || []).find(
-      (b) => b.getAttribute('number') === selectedBook.id
-    );
-
-    if (!bookElement) {
-      setError('Livro não encontrado.');
-      return;
-    }
-
-    const chapterElement = Array.from(bookElement.getElementsByTagName('chapter')).find(
-      (c) => parseInt(c.getAttribute('number')) === chapter.number
-    );
-
-    if (!chapterElement) {
-      setError('Este capítulo ainda não está disponível.');
-      return;
-    }
-
-    const verseElements = chapterElement.getElementsByTagName('verse');
-    const chapterVerses = Array.from(verseElements).map((verse) => ({
-      id: `${selectedBook.id}${chapter.number}${verse.getAttribute('number')}`,
-      number: parseInt(verse.getAttribute('number')),
-      content: verse.textContent
-    }));
-
-    setVerses(chapterVerses);
-    setSelectedChapter(chapter.number);
-    setView('verses');
-    setError(null);
-  };
+  const [books, setBooks] = useState([]);
   const [chapters, setChapters] = useState([]);
   const [verses, setVerses] = useState([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -116,48 +40,101 @@ const Bible = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedVerse, setSelectedVerse] = useState(null);
 
+  // Carrega os livros do JSON
+  const loadBooks = () => {
+    try {
+      if (!bibleData?.biblia?.testamentos?.[0]?.livros) {
+        setError('Estrutura do JSON inválida: livros não encontrados.');
+        return;
+      }
+
+      const booksArray = bibleData.biblia.testamentos[0].livros.map((book) => ({
+        id: book.numero.toString(),
+        name: `Livro ${book.numero}`,
+      }));
+
+      console.log('Livros carregados:', booksArray);
+      setBooks(booksArray);
+    } catch (err) {
+      setError('Erro ao carregar os livros: ' + err.message);
+    }
+  };
+
+  // Carrega os livros ao montar o componente
+  useEffect(() => {
+    loadBooks();
+  }, []);
+
+  // Seleciona um livro e carrega seus capítulos
   const handleBookSelect = (book) => {
-    const bookData = bibleData.biblia?.livros?.find(b => b.id === book.id);
-    if (!bookData) {
-      setError('Livro não encontrado.');
-      return;
+    try {
+      const selectedBookData = bibleData.biblia.testamentos[0].livros.find(
+        (b) => b.numero.toString() === book.id
+      );
+
+      if (!selectedBookData) {
+        setError('Livro não encontrado.');
+        return;
+      }
+
+      if (!selectedBookData.capitulos?.length) {
+        setError('Este livro ainda não está disponível.');
+        return;
+      }
+
+      const bookChapters = selectedBookData.capitulos.map((chapter) => ({
+        id: `${book.id}${chapter.numero}`,
+        number: chapter.numero,
+      }));
+
+      console.log('Capítulos carregados:', bookChapters);
+      setChapters(bookChapters);
+      setSelectedBook(book);
+      setView('chapters');
+      setError(null);
+    } catch (err) {
+      setError('Erro ao carregar os capítulos: ' + err.message);
     }
-    if (!bookData.capitulos?.length) {
-      setError('Este livro ainda não está disponível.');
-      return;
-    }
-    const bookChapters = bookData.capitulos.map(cap => ({
-      id: `${book.id}${cap.numero}`,
-      number: cap.numero
-    }));
-    setChapters(bookChapters);
-    setSelectedBook(book);
-    setView('chapters');
-    setError(null);
   };
 
+  // Seleciona um capítulo e carrega seus versículos
   const handleChapterSelect = (chapter) => {
-    const bookData = bibleData.biblia?.livros?.find(b => b.id === selectedBook.id);
-    if (!bookData) {
-      setError('Livro não encontrado.');
-      return;
+    try {
+      const selectedBookData = bibleData.biblia.testamentos[0].livros.find(
+        (b) => b.numero.toString() === selectedBook.id
+      );
+
+      if (!selectedBookData) {
+        setError('Livro não encontrado.');
+        return;
+      }
+
+      const selectedChapterData = selectedBookData.capitulos.find(
+        (c) => c.numero === chapter.number
+      );
+
+      if (!selectedChapterData) {
+        setError('Este capítulo ainda não está disponível.');
+        return;
+      }
+
+      const chapterVerses = selectedChapterData.versiculos.map((verse) => ({
+        id: `${selectedBook.id}${chapter.number}${verse.numero}`,
+        number: verse.numero,
+        content: verse.texto
+      }));
+
+      console.log('Versículos carregados:', chapterVerses);
+      setVerses(chapterVerses);
+      setSelectedChapter(chapter.number);
+      setView('verses');
+      setError(null);
+    } catch (err) {
+      setError('Erro ao carregar os versículos: ' + err.message);
     }
-    const chapterData = bookData.capitulos.find(cap => cap.numero === chapter.number);
-    if (!chapterData || !chapterData.versiculos) {
-      setError('Este capítulo ainda não está disponível.');
-      return;
-    }
-    const chapterVerses = chapterData.versiculos.map(verse => ({
-      id: `${selectedBook.id}${chapter.number}${verse.numero}`,
-      number: verse.numero,
-      content: verse.texto
-    }));
-    setVerses(chapterVerses);
-    setSelectedChapter(chapter.number);
-    setView('verses');
-    setError(null);
   };
 
+  // Volta para a visualização anterior
   const handleBack = () => {
     if (view === 'verses') {
       setView('chapters');
@@ -168,33 +145,25 @@ const Bible = () => {
     }
   };
 
-  const resetToInitialState = () => {
-    setSelectedBook(null);
-    setSelectedChapter(null);
-    setView('books');
-    setChapters([]);
-    setVerses([]);
-    setError(null);
-    setSearchTerm('');
-  };
-
+  // Filtra os livros com base no termo de pesquisa
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
 
-  const filteredBooks = books.filter(book =>
+  const filteredBooks = books.filter((book) =>
     book.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Renderiza a lista de livros
   const renderBooks = () => (
     <Box>
       <InputGroup mb={4}>
         <InputLeftElement pointerEvents="none">
           <FaSearch color="gray.300" />
         </InputLeftElement>
-        <Input 
-          placeholder="Pesquisar" 
-          color={textColor} 
+        <Input
+          placeholder="Pesquisar"
+          color={textColor}
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
         />
@@ -222,6 +191,7 @@ const Bible = () => {
     </Box>
   );
 
+  // Renderiza a lista de capítulos
   const renderChapters = () => (
     <SimpleGrid columns={{ base: 6, md: 8, lg: 12 }} spacing={4}>
       {chapters.map((chapter) => (
@@ -243,44 +213,14 @@ const Bible = () => {
     </SimpleGrid>
   );
 
-  const handleTextToSpeech = () => {
-    if (!verses.length) return;
-
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      setCurrentVerse(null);
-      return;
-    }
-
-    setIsSpeaking(true);
-    const utterances = verses.map((verse) => {
-      const utterance = new SpeechSynthesisUtterance(`Versículo ${verse.number}. ${verse.content}`);
-      utterance.lang = 'pt-BR';
-      utterance.onstart = () => setCurrentVerse(verse.id);
-      utterance.onend = () => {
-        if (verse === verses[verses.length - 1]) {
-          setIsSpeaking(false);
-          setCurrentVerse(null);
-        }
-      };
-      return utterance;
-    });
-
-    utterances.forEach(utterance => window.speechSynthesis.speak(utterance));
-  };
-
-  const handleVerseSelect = (verse) => {
-    setSelectedVerse(verse);
-  };
-
+  // Renderiza os versículos
   const renderVerses = () => (
     <Box>
       <Box position="fixed" bottom={20} right={4} zIndex={10}>
         <IconButton
-          aria-label={isSpeaking ? "Stop reading" : "Read aloud"}
+          aria-label={isSpeaking ? 'Stop reading' : 'Read aloud'}
           icon={<FaVolumeUp />}
-          colorScheme={isSpeaking ? "red" : "blue"}
+          colorScheme={isSpeaking ? 'red' : 'blue'}
           rounded="full"
           size="lg"
           onClick={handleTextToSpeech}
@@ -289,7 +229,7 @@ const Bible = () => {
       <VStack spacing={4} align="stretch" bg={bgColor} minH="100vh">
         <Box p={4}>
           <Heading size="lg" color={textColor} mb={6}>
-           {selectedBook?.name}
+            {selectedBook?.name}
           </Heading>
           <Heading size="xl" color={textColor} mb={8} textAlign="center">
             {selectedChapter}
@@ -301,7 +241,7 @@ const Bible = () => {
                 fontSize="lg"
                 color={textColor}
                 mb={4}
-                onClick={() => handleVerseSelect(verse)}
+                onClick={() => setSelectedVerse(verse)}
                 cursor="pointer"
                 _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}
                 p={2}
@@ -350,9 +290,49 @@ const Bible = () => {
         {view === 'verses' && renderVerses()}
       </Container>
 
-      <BottomNavigation onBibleClick={resetToInitialState} />
+      <BottomNavigation />
     </Box>
   );
 };
 
 export default Bible;
+
+
+  const handleTextToSpeech = () => {
+    if (!selectedVerse && verses.length === 0) return;
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      setCurrentVerse(null);
+      return;
+    }
+
+    const versesToRead = selectedVerse ? [selectedVerse] : verses;
+    let currentIndex = 0;
+
+    const speakVerse = () => {
+      if (currentIndex >= versesToRead.length) {
+        setIsSpeaking(false);
+        setCurrentVerse(null);
+        return;
+      }
+
+      const verse = versesToRead[currentIndex];
+      const utterance = new SpeechSynthesisUtterance(
+        `Versículo ${verse.number}. ${verse.content}`
+      );
+      utterance.lang = 'pt-BR';
+
+      utterance.onend = () => {
+        currentIndex++;
+        speakVerse();
+      };
+
+      setCurrentVerse(verse);
+      window.speechSynthesis.speak(utterance);
+    };
+
+    setIsSpeaking(true);
+    speakVerse();
+  };

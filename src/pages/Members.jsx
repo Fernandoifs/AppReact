@@ -46,7 +46,7 @@ const Members = () => {
   const [roleFilter, setRoleFilter] = useState('all');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
-  
+
   const bgColor = useColorModeValue('gray.50', 'gray.900');
   const cardBg = useColorModeValue('white', 'gray.800');
 
@@ -138,7 +138,7 @@ const Members = () => {
       isClosable: true,
     });
   };
-
+  const badgeBg = useColorModeValue("blue.500", "blue.300");
   return (
     <Box bg={bgColor} minH="100vh" p={4}>
       <Container maxW="container.xl">
@@ -207,7 +207,8 @@ const Members = () => {
                 {filteredMembers.length} {filteredMembers.length === 1 ? 'membro' : 'membros'}
               </Text>
               {roleFilter !== 'all' && (
-                <Badge colorScheme="blue" fontSize="sm">
+
+                <Badge bg={badgeBg} color="red" fontSize="sm">
                   Filtrado por: {roleFilter}
                 </Badge>
               )}
@@ -233,10 +234,10 @@ const Members = () => {
                         <Td>{member.phone}</Td>
                         <Td>
                           <Badge
-                            colorScheme={member.role === 'Pastor' ? 'red' : 
-                              member.role === 'Líder' ? 'green' : 
-                              member.role === 'Diácono' ? 'purple' : 
-                              member.role === 'Ministro de Louvor' ? 'blue' : 'gray'}
+                            colorScheme={member.role === 'Pastor' ? 'red' :
+                              member.role === 'Líder' ? 'green' :
+                                member.role === 'Diácono' ? 'purple' :
+                                  member.role === 'Ministro de Louvor' ? 'blue' : 'gray'}
                           >
                             {member.role}
                           </Badge>
