@@ -7,6 +7,18 @@ import AttendanceList from '../components/services/AttendanceList';
 import { useState } from 'react';
 import BottomNavigation from '../components/shared/BottomNavigation';
 
+const extractBibleReference = (verseRef) => {
+  const match = verseRef.match(/(.+)\s(\d+):(\d+)/);
+  if (match) {
+    return {
+      bookId: match[1],
+      chapter: match[2],
+      verse: match[3]
+    };
+  }
+  return null;
+};
+
 const Services = () => {
   const { events } = useEvents();
   const bgColor = useColorModeValue('facebook.bg', 'gray.800');
@@ -104,6 +116,7 @@ const Services = () => {
                         key={index}
                         as={RouterLink}
                         to={`/biblev1`}
+                        state={extractBibleReference(verse)}
                         color="blue.500"
                         _hover={{ textDecoration: 'underline' }}
                         cursor="pointer"

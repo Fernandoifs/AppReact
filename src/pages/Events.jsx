@@ -98,6 +98,7 @@ const Events = () => {
         const books = response.biblia.livros.map((book) => ({
           id: book.id,
           name: book.nome,
+          nome: book.nome,
           chapters: book.capitulos.map((cap) => ({
             number: cap.numero,
             verses: cap.versiculos.map((verse) => verse.numero),
@@ -405,7 +406,7 @@ const Events = () => {
                 <FormControl>
                   {newEvent.category === 'Culto' && (
                     <>
-                    <FormLabel>Leituras</FormLabel>
+                    <FormLabel>Leituras Biblicas</FormLabel>
                       <HStack spacing={4} mb={2}>
                         <Select
                           placeholder="Livro"
