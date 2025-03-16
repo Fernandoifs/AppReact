@@ -27,7 +27,7 @@ import {
   ModalFooter,
   FormControl,
   FormLabel,
-  useToast,VStack
+  useToast, VStack
 } from '@chakra-ui/react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import format from 'date-fns/format';
@@ -111,7 +111,7 @@ const Events = () => {
     };
     loadBibleData();
   }, []);
-  
+
   const handleBookChange = async (bookId) => {
     try {
       const response = await import('../mocks/biblev1.json');
@@ -227,7 +227,7 @@ const Events = () => {
     };
 
     setEvents((prevEvents) => [...prevEvents, eventData]);
-    
+
     // Reset form
     setNewEvent({
       category: "Culto",
@@ -287,6 +287,26 @@ const Events = () => {
               },
               '.rbc-header': {
                 backgroundColor: useColorModeValue('gray.50', 'gray.600'),
+                color: useColorModeValue('gray.800', 'white'),
+              },
+              '.rbc-header.rbc-today': {
+                backgroundColor: useColorModeValue('blue.100', 'blue.800'),
+                color: useColorModeValue('gray.900', 'white'),
+                fontWeight: 'bold'
+              },
+              '.rbc-toolbar button': {
+                color: useColorModeValue('gray.800', 'white'),
+                backgroundColor: useColorModeValue('white', 'gray.700'),
+                '&:hover': {
+                  backgroundColor: useColorModeValue('gray.100', 'gray.600')
+                },
+                '&:active, &.rbc-active': {
+                  backgroundColor: useColorModeValue('gray.200', 'gray.600'),
+                  color: useColorModeValue('gray.800', 'white')
+                }
+              },
+              '.rbc-toolbar-label': {
+                color: useColorModeValue('gray.800', 'white'),
               },
               '.rbc-day-bg': {
                 backgroundColor: useColorModeValue('white', 'gray.700'),
@@ -312,7 +332,24 @@ const Events = () => {
               style={{ height: '100%', color: dayTextColor }}
               views={['month', 'week', 'day']}
               defaultView="month"
+              selectable={true}
+              // Bloqueia a mudança automática para a visualização do "dia" ao clicar no número do dia
+              onDrillDown={(date, view) => {
+                if (view === 'day') {
+                  // Criar evento ao clicar no número do dia
+                  const selectedDate = format(date, 'yyyy-MM-dd');
+                  setNewEvent(prev => ({
+                    ...prev,
+                    date: selectedDate,
+                    time: '19:00'
+                  }));
+                  onNewEventOpen();
+                  return;
+                }
+              }}
+              // Remove a funcionalidade de alterar a visualização ao clicar no dia
               onSelectSlot={(slotInfo) => {
+                // Apenas abre o modal para criar um novo evento, sem alterar a visualização
                 const selectedDate = format(slotInfo.start, 'yyyy-MM-dd');
                 setNewEvent(prev => ({
                   ...prev,
@@ -321,7 +358,9 @@ const Events = () => {
                 }));
                 onNewEventOpen();
               }}
-              selectable={true}
+
+
+
               messages={{
                 next: "Próximo",
                 previous: "Anterior",
@@ -340,6 +379,7 @@ const Events = () => {
               culture="pt-BR"
               popup
             />
+
           </Box>
 
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
@@ -406,7 +446,7 @@ const Events = () => {
                 <FormControl>
                   {newEvent.category === 'Culto' && (
                     <>
-                    <FormLabel>Leituras Biblicas</FormLabel>
+                      <FormLabel>Leituras Biblicas</FormLabel>
                       <HStack spacing={4} mb={2}>
                         <Select
                           placeholder="Livro"
